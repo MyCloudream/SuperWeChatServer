@@ -1,0 +1,11 @@
+bin
+gen
+build
+.settings
+target
+*.iml
+.idea
+local.properties
+.gradle
+.svn
+.DS_Store
