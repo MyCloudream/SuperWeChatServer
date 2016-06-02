@@ -128,4 +128,59 @@ public interface ISuperWeChatBiz {
 	 * @return
 	 */
 	Result addGroupMember(String userName, String hxId);
+	/**
+	 * 添加多个群组成员
+	 * @param userNameArr
+	 * @param hxId
+	 * @return
+	 */
+	Result addGroupMembers(String userNameArr, String hxId);
+	/**
+	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * @param groupId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	Result downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize);
+	/**
+	 * 根据环信ID，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * @param hxId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	Result downloadGroupMembersByHxId(String hxId, String pageId, String pageSize);
+	/**
+	 * 删除群成员
+	 * @param userName
+	 * @param groupId
+	 * @return
+	 */
+	Result deleteGroupMember(String userName, String groupId);
+	/**
+	 * 删除多个群成员
+	 * @param userNames
+	 * @param groupId
+	 * @return
+	 */
+	Result deleteGroupMembers(String userNames, String groupId);
+	/**
+	 * 根据群组id删除群组
+	 * @param groupId
+	 * @return
+	 */
+	Result deleteGroup(String groupId);
+	/**
+	 * 根据群组id查找群组
+	 * @param groupId
+	 * @return
+	 */
+	Result findGroupByGroupId(String groupId);
+	/**
+	 * 根据环信id查找群组
+	 * @param groupId
+	 * @return
+	 */
+	Result findGroupByHxId(String hxId);
 }

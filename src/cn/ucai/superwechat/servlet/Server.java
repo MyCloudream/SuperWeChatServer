@@ -77,6 +77,30 @@ public class Server extends HttpServlet {
 		case I.REQUEST_ADD_GROUP_MEMBER:
 			addGroupMember(request,response);
 			break;
+		case I.REQUEST_ADD_GROUP_MEMBERS:
+			addGroupMembers(request,response);
+			break;
+		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS:
+			downloadGroupMembersByGroupId(request,response);
+			break;
+		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID:
+			downloadGroupMembersByHxId(request,response);
+			break;
+		case I.REQUEST_DELETE_GROUP_MEMBER:
+			deleteGroupMember(request,response);
+			break;
+		case I.REQUEST_DELETE_GROUP_MEMBERS:
+			deleteGroupMembers(request,response);
+			break;
+		case I.REQUEST_DELETE_GROUP:
+			deleteGroup(request,response);
+			break;
+		case I.REQUEST_FIND_GROUP_BY_ID:
+			findGroupByGroupId(request,response);
+			break;
+		case I.REQUEST_FIND_GROUP_BY_HXID:
+			findGroupByHxId(request,response);
+			break;
 			/*case I.REQUEST_DOWNLOAD_GROUP_AVATAR:
 			downloadGroupAvatar(request, response);
 			break;
@@ -101,9 +125,6 @@ public class Server extends HttpServlet {
 		case I.REQUEST_ADD_GROUP_MEMBER_BY_USERNAME:
 			addGroupMemberByUserName(request,response);
 			break;
-		case I.REQUEST_ADD_GROUP_MEMBERS:
-			addGroupMembers(request,response);
-			break;
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS:
 			downloadGroupMembers(request,response);
 			break;
@@ -116,14 +137,8 @@ public class Server extends HttpServlet {
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID_LIMIT:
 			downloadGroupMembersByHXIDLimit(request,response);
 			break;
-		case I.REQUEST_DELETE_GROUP_MEMBER:
-			deleteGroupMember(request,response);
-			break;
 		case I.REQUEST_DELETE_GROUP_MEMBERS:
 			deleteGroupMembers(request,response);
-			break;
-		case I.REQUEST_DELETE_GROUP:
-			deleteGroup(request,response);
 			break;
 		case I.REQUEST_DOWNLOAD_GROUPS:
 			downloadAllGroups(request,response);
@@ -137,9 +152,6 @@ public class Server extends HttpServlet {
 		case I.REQUEST_FIND_GROUP_BY_ID:
 			findGroupById(request,response);
 			break;
-		case I.REQUEST_FIND_GROUP_BY_HXID:
-			findGroupByHXID(request,response);
-			break;
 		case I.REQUEST_FIND_PUBLIC_GROUP_BY_HXID:
 			findPublicGroupByHXID(request,response);
 			break;
@@ -150,6 +162,63 @@ public class Server extends HttpServlet {
 		}
 	}
 	
+	private void findGroupByHxId(HttpServletRequest request, HttpServletResponse response) {
+		String hxId = request.getParameter(I.Group.HX_ID);
+		Result result = biz.findGroupByHxId(hxId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void findGroupByGroupId(HttpServletRequest request, HttpServletResponse response) {
+		String groupId = request.getParameter(I.Group.GROUP_ID);
+		Result result = biz.findGroupByGroupId(groupId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void deleteGroup(HttpServletRequest request, HttpServletResponse response) {
+		String groupId = request.getParameter(I.Group.GROUP_ID);
+		Result result = biz.deleteGroup(groupId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void deleteGroupMembers(HttpServletRequest request, HttpServletResponse response) {
+		String userNames = request.getParameter(I.Member.USER_NAME);
+		String groupId = request.getParameter(I.Member.GROUP_ID);
+		Result result = biz.deleteGroupMembers(userNames, groupId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void deleteGroupMember(HttpServletRequest request, HttpServletResponse response) {
+		String groupId = request.getParameter(I.Member.GROUP_ID);
+		String userName = request.getParameter(I.Member.USER_NAME);
+		Result result = biz.deleteGroupMember(userName,groupId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void downloadGroupMembersByHxId(HttpServletRequest request, HttpServletResponse response) {
+		String hxId = request.getParameter(I.Group.HX_ID);
+		String pageId = request.getParameter(I.PAGE_ID);
+		String pageSize = request.getParameter(I.PAGE_SIZE);
+		// 下载群组成员，如果有pageId和pageSize，则分页下载
+		Result result = biz.downloadGroupMembersByHxId(hxId,pageId,pageSize);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void downloadGroupMembersByGroupId(HttpServletRequest request, HttpServletResponse response) {
+		String groupId = request.getParameter(I.Group.GROUP_ID);
+		String pageId = request.getParameter(I.PAGE_ID);
+		String pageSize = request.getParameter(I.PAGE_SIZE);
+		// 下载群组成员，如果有pageId和pageSize，则分页下载
+		Result result = biz.downloadGroupMembersByGroupId(groupId,pageId,pageSize);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void addGroupMembers(HttpServletRequest request, HttpServletResponse response) {
+		String userNameArr = request.getParameter(I.Member.USER_NAME);
+		String hxId = request.getParameter(I.Member.GROUP_HX_ID);
+		Result result = biz.addGroupMembers(userNameArr,hxId);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
 	/**
 	 * 添加成员信息
 	 * 此处应该修改为事务操作！！！！！！！

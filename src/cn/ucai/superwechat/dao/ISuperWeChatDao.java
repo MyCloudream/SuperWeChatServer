@@ -3,6 +3,7 @@ package cn.ucai.superwechat.dao;
 import java.util.List;
 
 import cn.ucai.superwechat.bean.GroupAvatar;
+import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.UserAvatar;
 import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.pojo.Group;
@@ -129,10 +130,52 @@ public interface ISuperWeChatDao {
 	 */
 	public boolean addGroupMember(Member member);
 	/**
-	 * 
+	 * 修改群组人数
 	 * @param group
 	 * @param affiliationsCount
 	 * @return
 	 */
 	public boolean updateGroupAffiliationsCount(GroupAvatar groupAvatar);
+	/**
+	 * 添加多个群组成员
+	 * @param memberArr
+	 * @return
+	 */
+	public boolean addGroupMembers(Member[] memberArr);
+	/**
+	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * @param groupId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize);
+	/**
+	 * 根据环信id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * @param groupId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId, String pageId, String pageSize);
+	/**
+	 * 在群组中删除某指定姓名的用户
+	 * @param userName
+	 * @param groupId
+	 * @return
+	 */
+	public boolean delGroupMember(String userName, String groupId);
+	/**
+	 * 删除多个群组成员
+	 * @param userNames
+	 * @param groupId
+	 * @return
+	 */
+	public boolean delGroupMembers(String userNames, String groupId);
+	/**
+	 * 删除群组，同时删除成员表中的该群组的所有成员
+	 * @param groupId
+	 * @return
+	 */
+	public boolean deleteGroupAndMembers(String groupId);
 }

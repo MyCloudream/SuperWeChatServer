@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.ucai.superwechat.bean.GroupAvatar;
+import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.UserAvatar;
 import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.pojo.Contact;
@@ -664,6 +665,214 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			return count > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean addGroupMembers(Member[] memberArr) {
+		PreparedStatement statement = null;
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "insert into " + I.Member.TABLE_NAME + "(" 
+				+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
+				+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
+				+ ")values(?,?,?,?)";
+		for(int i=1;i<memberArr.length;i++){
+			sql += ",(?,?,?,?)";
+		}
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		try {
+			statement = connection.prepareStatement(sql);
+			for(int i=0;i<memberArr.length;i++){
+				statement.setString((i+1), memberArr[i].getMMemberUserName());
+				statement.setInt((i+2), memberArr[i].getMMemberGroupId());
+				statement.setString((i+3), memberArr[i].getMMemberGroupHxid());
+				statement.setInt((i+4), memberArr[i].getMMemberPermission());
+			}
+			int count = statement.executeUpdate();
+			return count > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	/**
+	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 */
+	@Override
+	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize) {
+		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME + I.User.TABLE_NAME +  
+				" where " + I.Member.GROUP_ID + "=? "
+				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
+				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
+		if(pageId!=null&&pageSize!=null){
+			sql += " limit ?,?";
+		}
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, groupId);
+			if(pageId!=null&&pageSize!=null){
+				Integer niPageId = Integer.parseInt(pageId);
+				Integer niPageSize = Integer.parseInt(pageSize);
+				statement.setInt(2, (niPageId-1)*niPageSize);
+				statement.setInt(3, niPageSize);
+			}
+			rs = statement.executeQuery();
+			if (rs.next()) {
+				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
+				initMemberUserAvatar(rs,memberUserAvatar);
+				list.add(memberUserAvatar);
+				return list;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	private void initMemberUserAvatar(ResultSet rs, MemberUserAvatar memberUserAvatar) throws SQLException {
+		initUserAvatar(rs, memberUserAvatar);
+		memberUserAvatar.setMMemberId(rs.getInt(I.Member.MEMBER_ID));
+		memberUserAvatar.setMMemberUserName(rs.getString(I.Member.USER_NAME));
+		memberUserAvatar.setMMemberGroupId(rs.getInt(I.Member.GROUP_ID));
+		memberUserAvatar.setMMemberGroupHxid(rs.getString(I.Member.GROUP_HX_ID));
+		memberUserAvatar.setMMemberPermission(rs.getInt(I.Member.PERMISSION));
+	}
+
+	/**
+	 * 根据环信id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 */
+	@Override
+	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId, String pageId, String pageSize) {
+		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME + I.User.TABLE_NAME +  
+				" where " + I.Member.GROUP_HX_ID + "=? "
+				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
+				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
+		if(pageId!=null&&pageSize!=null){
+			sql += " limit ?,?";
+		}
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, hxId);
+			if(pageId!=null&&pageSize!=null){
+				Integer niPageId = Integer.parseInt(pageId);
+				Integer niPageSize = Integer.parseInt(pageSize);
+				statement.setInt(2, (niPageId-1)*niPageSize);
+				statement.setInt(3, niPageSize);
+			}
+			rs = statement.executeQuery();
+			if (rs.next()) {
+				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
+				initMemberUserAvatar(rs,memberUserAvatar);
+				list.add(memberUserAvatar);
+				return list;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	/**
+	 * 删除指定群成员
+	 */
+	@Override
+	public boolean delGroupMember(String userName, String groupId) {
+		PreparedStatement statement = null;
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?" + " and "
+				+ I.Member.GROUP_ID + " =?";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userName);
+			statement.setInt(2, Integer.parseInt(groupId));
+			int count = statement.executeUpdate();
+			return count > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				connection.rollback();
+				return false;
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean delGroupMembers(String userNames, String groupId) {
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + " in ("+"?) " + " and "
+				+ I.Member.GROUP_ID + " =?";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userNames);
+			statement.setInt(2, Integer.parseInt(groupId));
+			int count = statement.executeUpdate();
+			return count > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				connection.rollback();
+				return false;
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean deleteGroupAndMembers(String groupId) {
+		Connection connection = JdbcUtils.getConnection();
+		PreparedStatement statement = null;
+		try {
+			connection.setAutoCommit(false);
+			String sql = "delete from " + I.Group.TABLE_NAME + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("connection=" + connection + ",sql=" + sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, Integer.parseInt(groupId));
+			statement.executeUpdate();
+			
+			sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.GROUP_ID + "=?";
+			System.out.println("connection=" + connection + ",sql=" + sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, Integer.parseInt(groupId));
+			statement.executeUpdate();
+			connection.commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				connection.rollback();
+				return false;
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 		} finally {
 			JdbcUtils.closeAll(null, statement, connection);
 		}

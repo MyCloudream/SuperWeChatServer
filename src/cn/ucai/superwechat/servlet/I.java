@@ -102,6 +102,7 @@ public interface I {
 	int MSG_GROUP_HXID_EXISTS						=		302;							//群组环信ID已经存在
 	int MSG_GROUP_CREATE_FAIL						=		303;							//创建群组失败
 	int MSG_GROUP_ADD_MEMBER_FAIL					=		304;							//添加群组成员失败
+	int MSG_GROUP_GET_MEMBERS_FAIL					=		304;							//获取群成员失败
 	int MSG_GROUP_ADD_MEMBER_SCUUESS				=		305;							//添加群组成员成功
 	int MSG_GROUP_UNKONW							=		306;							//群组不存在
 	int MSG_GROUP_SAME_NAME							=		307;							//群组名称未修改
@@ -109,8 +110,11 @@ public interface I {
 	int MSG_GROUP_UPDATE_NAME_FAIL					=		309;							//群组名称修改失败
 	int MSG_GROUP_DELETE_MEMBER_SUCCESS				=		310;							//删除群组成员成功
 	int MSG_GROUP_DELETE_MEMBER_FAIL				=		311;							//删除群组成员失败
+	int MSG_GROUP_DELETE_MEMBERS_FAIL				=		311;							//删除多群组成员失败
 	int MSG_GROUP_DELETE_SUCCESS					=		312;							//删除群组成功
 	int MSG_GROUP_DELETE_FAIL						=		313;							//删除群组失败
+	int MSG_GROUP_FIND_BY_GOURP_ID_FAIL						=		313;							//删除群组失败
+	int MSG_GROUP_FIND_BY_HX_ID_FAIL						=		313;							//删除群组失败
 	int MSG_LOGIN_UNKNOW_USER						=		401;							//账户不存在
 	int MSG_LOGIN_ERROR_PASSWORD					=		402;							//账户密码错误
 	int MSG_LOGIN_SUCCESS							=		403;							//登陆成功
@@ -191,7 +195,7 @@ public interface I {
 	/** 客户端发送的更新群名称请求 */
 	String REQUEST_UPDATE_GROUP_NAME 				= 		"update_group_name";
 	/** 客户端发送的下载多个群成员请求 */
-	String REQUEST_DOWNLOAD_GROUP_MEMBERS 			= 		"download_group_members";
+	String REQUEST_DOWNLOAD_GROUP_MEMBERS 			= 		"download_group_members_by_groupid";
 	/** 客户端发送的下载多个群成员请求 */
 	String REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_LIMIT 	= 		"download_group_members_by_limit";
 	/** 客户端发送的下载多个群成员请求 */
