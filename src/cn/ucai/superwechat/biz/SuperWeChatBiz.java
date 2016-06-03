@@ -12,6 +12,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import cn.ucai.superwechat.bean.GroupAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.Result;
@@ -20,10 +22,10 @@ import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.dao.ISuperWeChatDao;
 import cn.ucai.superwechat.dao.SuperWeChatDao;
 import cn.ucai.superwechat.pojo.Group;
+import cn.ucai.superwechat.pojo.Location;
 import cn.ucai.superwechat.pojo.Member;
 import cn.ucai.superwechat.pojo.User;
 import cn.ucai.superwechat.servlet.I;
-
 
 public class SuperWeChatBiz implements ISuperWeChatBiz {
 	private ISuperWeChatDao dao;
@@ -585,6 +587,86 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_FIND_BY_HX_ID_FAIL);
+		}
+		return result;
+	}
+
+	/**
+	 * 查找某一指定用户的所有的群（所在的所有群）
+	 */
+	@Override
+	public Result findAllGroupByUserName(String userName) {
+		Result result = new Result();
+		List<GroupAvatar> listGroupAdater = dao.findAllGroupByUserName(userName);
+		if(listGroupAdater!=null){
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetData(listGroupAdater);
+		}else{
+			result.setRetCode(I.MSG_GROUP_FIND_BY_USER_NAME_FAIL);
+			result.setRetMsg(false);
+		}
+		return result;
+	}
+
+	/**
+	 * 查找所有的公开群，不包括当前用户已经所在的群
+	 */
+	@Override
+	public Result findPublicGroups(String userName, int pageId, int pageSize) {
+		Result result = new Result();
+		List<GroupAvatar> listGroupAdater = dao.findPublicGroups(userName,pageId,pageSize);
+		if(listGroupAdater!=null){
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetData(listGroupAdater);
+		}else{
+			result.setRetCode(I.MSG_PUBLIC_GROUP_FAIL);
+			result.setRetMsg(false);
+		}
+		return result;
+	}
+
+	/**
+	 * 根据群组名称，模糊查询所有匹配的群组
+	 */
+	@Override
+	public Result findGroupByGroupName(String groupName) {
+		Result result = new Result();
+		List<GroupAvatar> listGroupAdater = dao.findGroupByGroupName(groupName);
+		if(listGroupAdater!=null){
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetData(listGroupAdater);
+		}else{
+			result.setRetCode(I.MSG_GROUP_FIND_BY_GROUP_NAME_FAIL);
+			result.setRetMsg(false);
+		}
+		return result;
+	}
+
+	@Override
+	public Result uploadUserLocation(Location location) {
+		Result result = new Result();
+		if(dao.uploadUserLocation(location)){
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_LOCATION_UPLOAD_SUCCESS);
+		}else{
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_LOCATION_UPLOAD_FAIL);
+		}
+		return result;
+	}
+
+	@Override
+	public Result updateUserLocation(Location location) {
+		Result result = new Result();
+		if(dao.updateUserLocation(location)){
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_LOCATION_UPDATE_SUCCESS);
+		}else{
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_LOCATION_UPDATE_FAIL);
 		}
 		return result;
 	}

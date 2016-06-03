@@ -7,6 +7,7 @@ import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.UserAvatar;
 import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.pojo.Group;
+import cn.ucai.superwechat.pojo.Location;
 import cn.ucai.superwechat.pojo.Member;
 import cn.ucai.superwechat.pojo.User;
 
@@ -178,4 +179,36 @@ public interface ISuperWeChatDao {
 	 * @return
 	 */
 	public boolean deleteGroupAndMembers(String groupId);
+	/**
+	 * 查询某个用户所在的所有群
+	 * @param userName
+	 * @return
+	 */
+	public List<GroupAvatar> findAllGroupByUserName(String userName);
+	/**
+	 * 查找所有的公开群，不包括当前用户已经所在的群
+	 * @param userName
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	public List<GroupAvatar> findPublicGroups(String userName, int pageId, int pageSize);
+	/**
+	 * 根据群组名称，模糊查询所有匹配的群组
+	 * @param groupName
+	 * @return
+	 */
+	public List<GroupAvatar> findGroupByGroupName(String groupName);
+	/**
+	 * 上传用户地理位置信息
+	 * @param location
+	 * @return
+	 */
+	public boolean uploadUserLocation(Location location);
+	/**
+	 * 更新用户的地理位置信息
+	 * @param location
+	 * @return
+	 */
+	public boolean updateUserLocation(Location location);
 }

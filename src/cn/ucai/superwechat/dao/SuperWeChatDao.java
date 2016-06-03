@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import cn.ucai.superwechat.bean.UserAvatar;
 import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.pojo.Contact;
 import cn.ucai.superwechat.pojo.Group;
+import cn.ucai.superwechat.pojo.Location;
 import cn.ucai.superwechat.pojo.Member;
 import cn.ucai.superwechat.pojo.User;
 import cn.ucai.superwechat.servlet.I;
@@ -873,6 +875,158 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	/**
+	 * 查找某一指定用户所在的所有群
+	 */
+	@Override
+	public List<GroupAvatar> findAllGroupByUserName(String userName) {
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Member.TABLE_NAME + ","+ I.Group.TABLE_NAME + ","+ I.Avatar.TABLE_NAME + " where "
+				+ I.Member.USER_NAME + "=?" + 
+				" and " + I.Member.GROUP_ID + "=" + I.Group.GROUP_ID 
+				+ " and " + I.Avatar.AVATAR_TYPE + "=1 "
+				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME + " ";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		List<GroupAvatar> listGroupAvatar = new ArrayList<GroupAvatar>();
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userName);
+			rs = statement.executeQuery();
+			while (rs.next()) {
+				GroupAvatar ga = new GroupAvatar();
+				initGroupAvatar(rs, ga);
+				listGroupAvatar.add(ga);
+			}
+			return listGroupAvatar;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	/**
+	 * 查找所有的公开群，不包括当前用户已经所在的群
+	 */
+	@Override
+	public List<GroupAvatar> findPublicGroups(String userName, int pageId, int pageSize) {
+		List<GroupAvatar> listGroupAvatar = new ArrayList<GroupAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Group.TABLE_NAME + ","+ I.Avatar.TABLE_NAME 
+				+ " where " + I.Group.IS_PUBLIC + "=?"
+				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME
+				+ " and " + I.Avatar.AVATAR_TYPE + "=1 "
+				+ " and " + I.Group.GROUP_ID + " not in ("
+				+ "select " + I.Member.GROUP_ID + " from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?"
+				+ ") limit ?,?";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, I.GROUP_PUBLIC);
+			statement.setString(2, userName);
+			statement.setInt(3, pageId);
+			statement.setInt(4, pageSize);
+			rs = statement.executeQuery();
+			while (rs.next()) {
+				GroupAvatar groupAvatar = new GroupAvatar();
+				initGroupAvatar(rs, groupAvatar);
+				listGroupAvatar.add(groupAvatar);
+			}
+			return listGroupAvatar;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	@Override
+	public List<GroupAvatar> findGroupByGroupName(String groupName) {
+		List<GroupAvatar> listGroupAvatar = new ArrayList<GroupAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Group.TABLE_NAME + ","+ I.Avatar.TABLE_NAME 
+				+ " where " + I.Group.NAME + "=?"
+				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME
+				+ " and " + I.Avatar.AVATAR_TYPE + "=1 ";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, groupName);
+			rs = statement.executeQuery();
+			while (rs.next()) {
+				GroupAvatar groupAvatar = new GroupAvatar();
+				initGroupAvatar(rs, groupAvatar);
+				listGroupAvatar.add(groupAvatar);
+			}
+			return listGroupAvatar;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	@Override
+	public boolean uploadUserLocation(Location location) {
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "insert into " + I.Location.TABLE_NAME + 
+				"(" + I.Location.USER_NAME + "," + I.Location.LATITUDE + "," + I.Location.LONGITUDE + "," + I.Location.IS_SEARCHED + ","
+				+ I.Location.UPDATE_TIME + ")values(?,?,?,?,?)";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, location.getMLocationUserName());
+			statement.setDouble(2, location.getMLocationLatitude());
+			statement.setDouble(3, location.getMLocationLongitude());
+			statement.setInt(4, Utils.boolean2int(location.getMLocationIsSearched()));
+			statement.setString(5, location.getMLocationLastUpdateTime());
+			int count = statement.executeUpdate();
+			if(count>0){
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(null, statement, connection);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean updateUserLocation(Location location) {
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "update " + I.Location.TABLE_NAME + " set " + I.Location.LATITUDE + "=?," + I.Location.LONGITUDE
+				+ "=?," + I.Location.IS_SEARCHED + "=?," + I.Location.UPDATE_TIME + "=?" + " where "
+				+ I.Location.USER_NAME + "=?";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setDouble(1, location.getMLocationLatitude());
+			statement.setDouble(2, location.getMLocationLongitude());
+			statement.setInt(3, Utils.boolean2int(location.getMLocationIsSearched()));
+			statement.setString(4, location.getMLocationLastUpdateTime());
+			statement.setString(5, location.getMLocationUserName());
+			int count = statement.executeUpdate();
+			return count == 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		} finally {
 			JdbcUtils.closeAll(null, statement, connection);
 		}

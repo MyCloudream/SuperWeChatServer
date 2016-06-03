@@ -183,4 +183,36 @@ public interface ISuperWeChatBiz {
 	 * @return
 	 */
 	Result findGroupByHxId(String hxId);
+	/**
+	 * 查询某个用户所在的所有群
+	 * @param userName
+	 * @return
+	 */
+	Result findAllGroupByUserName(String userName);
+	/**
+	 * 查找所有的公开群，不包括当前用户已经所在的群
+	 * @param userName
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	Result findPublicGroups(String userName, int pageId, int pageSize);
+	/**
+	 * 根据群组名称，模糊查询所有匹配的群组
+	 * @param groupName
+	 * @return
+	 */
+	Result findGroupByGroupName(String groupName);
+	/**
+	 * 上传用户的地理位置信息
+	 * @param location
+	 * @return
+	 */
+	Result uploadUserLocation(Location location);
+	/**
+	 * 更新用户的地理位置信息
+	 * @param location
+	 * @return
+	 */
+	Result updateUserLocation(Location location);
 }

@@ -8,12 +8,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.biz.ISuperWeChatBiz;
 import cn.ucai.superwechat.biz.SuperWeChatBiz;
 import cn.ucai.superwechat.pojo.Group;
+import cn.ucai.superwechat.pojo.Location;
 import cn.ucai.superwechat.pojo.User;
 import cn.ucai.superwechat.utils.JsonUtil;
+import cn.ucai.superwechat.utils.Utils;
 
 @WebServlet("/Server")
 public class Server extends HttpServlet {
@@ -101,6 +105,21 @@ public class Server extends HttpServlet {
 		case I.REQUEST_FIND_GROUP_BY_HXID:
 			findGroupByHxId(request,response);
 			break;
+		case I.REQUEST_FIND_GROUP_BY_USER_NAME:
+			findAllGroupByUserName(request,response);
+			break;
+		case I.REQUEST_FIND_PUBLIC_GROUPS:
+			findPublicGroups(request,response);
+			break;
+		case I.REQUEST_FIND_GROUP_BY_GROUP_NAME:
+			findGroupByGroupName(request,response);
+			break;
+		case I.REQUEST_UPLOAD_LOCATION:
+			uploadLocation(request, response);
+			break;
+		case I.REQUEST_UPDATE_LOCATION:
+			updateLocation(request, response);
+			break;
 			/*case I.REQUEST_DOWNLOAD_GROUP_AVATAR:
 			downloadGroupAvatar(request, response);
 			break;
@@ -112,12 +131,6 @@ public class Server extends HttpServlet {
 			break;
 		case I.REQUEST_FIND_USERS_BY_NICK:
 			findUsersByNick(request, response);
-			break;
-		case I.REQUEST_UPLOAD_LOCATION:
-			uploadLocation(request, response);
-			break;
-		case I.REQUEST_UPDATE_LOCATION:
-			updateLocation(request, response);
 			break;
 		case I.REQUEST_DOWNLOAD_LOCATION:
 			downloadLocation(request, response);
@@ -143,12 +156,6 @@ public class Server extends HttpServlet {
 		case I.REQUEST_DOWNLOAD_GROUPS:
 			downloadAllGroups(request,response);
 			break;
-		case I.REQUEST_FIND_PUBLIC_GROUPS:
-			findPublicGroup(request,response);
-			break;
-		case I.REQUEST_FIND_GROUP:
-			findGroupByName(request,response);
-			break;
 		case I.REQUEST_FIND_GROUP_BY_ID:
 			findGroupById(request,response);
 			break;
@@ -162,6 +169,67 @@ public class Server extends HttpServlet {
 		}
 	}
 	
+	/**
+	 * 更新用户地理位置
+	 * @param request
+	 * @param response
+	 */
+	private void updateLocation(HttpServletRequest request,
+			HttpServletResponse response) {
+		String userName = request.getParameter(I.Location.USER_NAME);
+		String latitude = request.getParameter(I.Location.LATITUDE);
+		String longitude = request.getParameter(I.Location.LONGITUDE);
+		String isSearched = request.getParameter(I.Location.IS_SEARCHED);
+		Location location = new Location(userName, 
+				Double.parseDouble(latitude), Double.parseDouble(longitude), 
+				Boolean.parseBoolean(isSearched),System.currentTimeMillis()+"");
+		Result result = biz.updateUserLocation(location);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	/**
+	 * 上传用户地理位置
+	 * @param request
+	 * @param response
+	 */
+	private void uploadLocation(HttpServletRequest request,
+			HttpServletResponse response) {
+		String userName = request.getParameter(I.Location.USER_NAME);
+		String latitude = request.getParameter(I.Location.LATITUDE);
+		String longitude = request.getParameter(I.Location.LONGITUDE);
+		Location location = new Location(userName, 
+				Double.parseDouble(latitude), Double.parseDouble(longitude), 
+				Utils.int2boolean(I.LOCATION_IS_SEARCH_ALLOW),System.currentTimeMillis()+"");
+		Result result = biz.uploadUserLocation(location);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void findGroupByGroupName(HttpServletRequest request, HttpServletResponse response) {
+		String groupName = request.getParameter(I.Group.NAME);
+		Result result = biz.findGroupByGroupName(groupName);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	/**
+	 * 查找所有的公开群
+	 * @param request
+	 * @param response
+	 */
+	private void findPublicGroups(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter(I.User.USER_NAME);
+		int pageId = Integer.parseInt(request.getParameter(I.PAGE_ID));
+		int pageSize = Integer.parseInt(request.getParameter(I.PAGE_SIZE));
+		Result result = biz.findPublicGroups(userName, pageId, pageSize);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
+	private void findAllGroupByUserName(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter(I.User.USER_NAME);
+		Result result = biz.findAllGroupByUserName(userName);
+		JsonUtil.writeJsonToClient(result, response);
+		
+	}
+
 	private void findGroupByHxId(HttpServletRequest request, HttpServletResponse response) {
 		String hxId = request.getParameter(I.Group.HX_ID);
 		Result result = biz.findGroupByHxId(hxId);

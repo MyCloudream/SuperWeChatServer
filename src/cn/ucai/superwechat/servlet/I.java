@@ -115,6 +115,9 @@ public interface I {
 	int MSG_GROUP_DELETE_FAIL						=		313;							//删除群组失败
 	int MSG_GROUP_FIND_BY_GOURP_ID_FAIL						=		313;							//删除群组失败
 	int MSG_GROUP_FIND_BY_HX_ID_FAIL						=		313;							//删除群组失败
+	int MSG_GROUP_FIND_BY_USER_NAME_FAIL						=		313;							//删除群组失败
+	int MSG_GROUP_FIND_BY_GROUP_NAME_FAIL						=		313;							//删除群组失败
+	int MSG_PUBLIC_GROUP_FAIL						=		313;							//查找公开群失败
 	int MSG_LOGIN_UNKNOW_USER						=		401;							//账户不存在
 	int MSG_LOGIN_ERROR_PASSWORD					=		402;							//账户密码错误
 	int MSG_LOGIN_SUCCESS							=		403;							//登陆成功
@@ -208,12 +211,14 @@ public interface I {
 	String REQUEST_DELETE_GROUP_MEMBERS 			= 		"delete_group_members";
 	/** 客户端发送的删除群组请求 */
 	String REQUEST_DELETE_GROUP 					= 		"delete_group";
-	/** 客户端发送的下载群组请求 */
-	String REQUEST_DOWNLOAD_GROUPS 					= 		"download_groups";
+//	/** 客户端发送的下载群组请求 */
+//	String REQUEST_DOWNLOAD_GROUPS 					= 		"download_groups";
 	/** 客户端发送的下载公开裙请求 */
 	String REQUEST_FIND_PUBLIC_GROUPS 				= 		"download_public_groups";
 	/** 客户端发送的根据群组名称模糊查找群组请求 */
-	String REQUEST_FIND_GROUP 						= 		"find_group_by_group_name";
+	String REQUEST_FIND_GROUP_BY_GROUP_NAME 						= 		"find_group_by_group_name";
+	/** 客户端发送的用户姓名查找用户所在的群组请求 */
+	String REQUEST_FIND_GROUP_BY_USER_NAME 						= 		"find_group_by_user_name";
 	/** 客户端发送的根据群组账号查找群组请求 */
 	String REQUEST_FIND_GROUP_BY_ID					= 		"find_group_by_group_id";
 	/** 客户端发送的根据群组环信id查找群组请求 */
