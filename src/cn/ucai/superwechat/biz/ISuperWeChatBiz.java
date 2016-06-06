@@ -76,7 +76,12 @@ public interface ISuperWeChatBiz {
 	 * @return
 	 */
 	Result findContactPagesByUserName(String userName, String pageId, String pageSize);
-
+	/**
+	 * 查询全部好友列表
+	 * @param userName
+	 * @return
+	 */
+	Result findContactAllByUserName(String userName);
 	/**
 	 * 添加好友关系
 	 * @param name
@@ -215,4 +220,13 @@ public interface ISuperWeChatBiz {
 	 * @return
 	 */
 	Result updateUserLocation(Location location);
+	/**
+	 * 分页获取附近的人 用户列表
+	 * @param userName
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	Result downloadLocation(String userName, String pageId, String pageSize);
+
 }

@@ -12,7 +12,7 @@ public class JdbcUtils {
 		 * 加载jdbc驱动程序
 		 */
 		try{
-			Class.forName("org.sqlite.JDBC");
+			Class.forName(PropertiesUtil.getValue("sqlDriver","jdbc.properties"));
 		}catch(ClassNotFoundException e){
 			e.printStackTrace();
 		}
@@ -20,8 +20,7 @@ public class JdbcUtils {
 	public static Connection getConnection(){
 		try{
 			Connection connection = DriverManager.getConnection(
-				"jdbc:sqlite:C:/Users/sks/Desktop/superwechat_Database_V02-master/superwechat_v04.db");
-			
+				PropertiesUtil.getValue("sqlUrl","jdbc.properties"));
 			System.out.println("JdbcUtils*****connection="+connection);
 			return connection;
 		} catch (SQLException e){

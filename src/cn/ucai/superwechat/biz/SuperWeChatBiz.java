@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import cn.ucai.superwechat.bean.GroupAvatar;
+import cn.ucai.superwechat.bean.LocationUserAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.bean.UserAvatar;
@@ -332,7 +333,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_CONTACT_DEL_FAIL);
 		}
-		return null;
+		return result;
 	}
 
 	/**
@@ -380,7 +381,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	public Result createGroup(Group group, HttpServletRequest request) {
 		Result result = null;
 		Group groupFind = dao.findGroupByHxid(group.getMGroupHxid());
-		if(groupFind!=null){
+		if(groupFind==null){
 			if(uploadAvatar(group.getMGroupHxid(),I.AVATAR_TYPE_GROUP_PATH,request)){// 头像上传成功
 				if(dao.addGroupAndGroupOwnerMember(group)){// 添加群组成功
 					result = new Result(true,I.MSG_DEFAULT_SUCCESS);
@@ -669,5 +670,37 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			result.setRetCode(I.MSG_LOCATION_UPDATE_FAIL);
 		}
 		return result;
+	}
+
+	@Override
+	public Result findContactAllByUserName(String userName) {
+		Result result = new Result();
+		UserAvatarContact userAvatarContact = dao.findContactAllByUserName(userName);
+		if(userAvatarContact!=null){
+			result.setRetData(userAvatarContact);
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+		}else{
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+		}
+		return result;
+	}
+
+	@Override
+	public Result downloadLocation(String userName, String pageId, String pageSize) {
+		Result result = new Result();
+		List<LocationUserAvatar> listLocationUserAvatar = dao.downloadLocation(userName,pageId,pageSize);
+		if(listLocationUserAvatar==null){
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_LOCATION_GET_FAIL);
+			
+		}else{
+			result.setRetMsg(true);
+			result.setRetData(listLocationUserAvatar);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+		}
+		return result;
+		
 	}
 }

@@ -1,8 +1,9 @@
 package cn.ucai.superwechat.pojo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
-public class Location implements Serializable {
+public class Location implements Serializable,Comparable<Location>{
 	private static final long serialVersionUID = 1L;
 	private Integer mlocationId;
 	private String mlocationUserName;
@@ -88,6 +89,19 @@ public class Location implements Serializable {
 				+ "this.mlocationLatitude=" + mlocationLatitude + "this.mlocationLongitude=" + mlocationLongitude
 				+ "this.mlocationIsSearched=" + mlocationIsSearched + "this.mlocationLastUpdateTime="
 				+ mlocationLastUpdateTime;
+	}
+
+	@Override
+	public int compareTo(Location o) {
+		double EARTH_RADIUS = 6378137.0;
+		double dLat = Math.toRadians(o.mlocationLatitude - this.mlocationLatitude); 
+        double dLng = Math.toRadians(o.mlocationLongitude - this.mlocationLongitude);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                            Math.cos(Math.toRadians(this.mlocationLatitude)) * Math.cos(Math.toRadians(o.mlocationLatitude)) *
+                            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = EARTH_RADIUS * c;
+        return new BigDecimal(distance).intValue();
 	}
 
 }

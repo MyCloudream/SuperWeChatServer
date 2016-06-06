@@ -6,9 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.ucai.superwechat.bean.GroupAvatar;
+import cn.ucai.superwechat.bean.LocationUserAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.UserAvatar;
 import cn.ucai.superwechat.bean.UserAvatarContact;
@@ -193,6 +195,17 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		userAvatar.setMAvatarLastUpdateTime(rs.getString(I.Avatar.UPDATE_TIME));
 	}
 	
+	private void initLocation(ResultSet rs,LocationUserAvatar locationUserAvatar) throws SQLException {
+		locationUserAvatar.setMLocationId(rs.getInt(I.Location.LOCATION_ID));
+		locationUserAvatar.setMLocationUserName(rs.getString(I.Location.USER_NAME));
+		locationUserAvatar.setMLocationLatitude(rs.getDouble(I.Location.LATITUDE));
+		locationUserAvatar.setMLocationLongitude(rs.getDouble(I.Location.LONGITUDE));
+		locationUserAvatar.setMLocationIsSearched(Utils.int2boolean(rs.getInt(I.Location.IS_SEARCHED)));
+		locationUserAvatar.setMLocationLastUpdateTime(rs.getString(I.Location.UPDATE_TIME));
+	}
+	
+	
+	
 	/**
 	 * 从set中获取contact表中的一条记录
 	 * 
@@ -252,20 +265,16 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		String sql = "select * from " + I.Contact.TABLE_NAME + ","+ I.User.TABLE_NAME + ","+ I.Avatar.TABLE_NAME 
 				+ " where "	+ I.Contact.USER_NAME + "=?" 
 				+ " and " + I.User.USER_NAME + "=" + I.Contact.CU_NAME + " " 
-				+ " and " + I.User.USER_NAME + "=" + I.Avatar.USER_NAME + " ";
-		if(pageId!=null&&pageSize!=null){
-			sql += " limit ?,?";
-		}
+				+ " and " + I.User.USER_NAME + "=" + I.Avatar.USER_NAME + " "
+				+ " limit ?,?";
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, userName);
-			if(pageId!=null&&pageSize!=null){
-				Integer niPageId = Integer.parseInt(pageId);
-				Integer niPageSize = Integer.parseInt(pageSize);
-				statement.setInt(2, (niPageId-1)*niPageSize);
-				statement.setInt(3, niPageSize);
-			}
+			Integer niPageId = Integer.parseInt(pageId);
+			Integer niPageSize = Integer.parseInt(pageSize);
+			statement.setInt(2, (niPageId-1)*niPageSize);
+			statement.setInt(3, niPageSize);
 			rs = statement.executeQuery();
 			boolean flag = true;
 			UserAvatarContact uac = new UserAvatarContact();
@@ -447,8 +456,9 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 
 	@Override
 	public boolean addGroupAndGroupOwnerMember(Group group) {
-		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
+		PreparedStatement statement = null;
+		ResultSet rs = null;
 		try {
 			// 关闭事务的自动提交
 			connection.setAutoCommit(false);
@@ -458,7 +468,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 					+ I.Group.MODIFIED_TIME + "," + I.Group.MAX_USERS+ "," 
 					+ I.Group.AFFILIATIONS_COUNT + "," + I.Group.IS_PUBLIC + "," 
 					+ I.Group.ALLOW_INVITES + ")values(?,?,?,?,?,?,?,?,?)";
-			statement = connection.prepareStatement(sql);
+			statement = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, group.getMGroupHxid());
 			statement.setString(2, group.getMGroupName());
 			statement.setString(3, group.getMGroupDescription());
@@ -469,6 +479,14 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement.setInt(8, Utils.boolean2int(group.getMGroupIsPublic()));
 			statement.setInt(9, Utils.boolean2int(group.getMGroupAllowInvites()));
 			statement.executeUpdate();
+			
+			int gourpId = -1;
+			rs = statement.getGeneratedKeys();
+			if (rs != null && rs.next()) {
+				int id = rs.getInt(1);
+				System.out.println("dao.createGroup,id=" + id);
+				gourpId =  id;
+			}
 			
 			sql = "insert into " + I.Avatar.TABLE_NAME + "(" + I.Avatar.USER_NAME + "," + I.Avatar.AVATAR_PATH + ","
 					+ I.Avatar.AVATAR_TYPE + ","+I.Avatar.UPDATE_TIME+")values(?,?,?,?)";
@@ -484,7 +502,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 					+ I.Member.GROUP_HX_ID + ","+I.Member.PERMISSION+")values(?,?,?,?)";
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, group.getMGroupOwner());
-			statement.setInt(2, group.getMGroupId());
+			statement.setInt(2, gourpId);
 			statement.setString(3, group.getMGroupHxid());
 			statement.setInt(4,I.PERMISSION_OWNER);
 			statement.executeUpdate();
@@ -512,7 +530,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "select * from " + I.Group.TABLE_NAME +","+ I.Avatar.TABLE_NAME + 
 				" where " + I.Group.GROUP_ID + "=? "
-				+ " and " + I.Group.NAME + "=" + I.Avatar.USER_NAME;
+				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME;
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
 			statement = connection.prepareStatement(sql);
@@ -546,7 +564,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "select * from " + I.Group.TABLE_NAME +","+ I.Avatar.TABLE_NAME + 
 				" where " + I.Group.HX_ID + "=? "
-				+ " and " + I.Group.NAME + "=" + I.Avatar.USER_NAME;
+				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME;
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
 			statement = connection.prepareStatement(sql);
@@ -658,6 +676,8 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
 				+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
+		System.out.println("sql"+sql);
+		System.out.println(groupAvatar.toString());
 		try {
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount());
@@ -681,20 +701,22 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 				+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
 				+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
 				+ ")values(?,?,?,?)";
-		for(int i=1;i<memberArr.length;i++){
-			sql += ",(?,?,?,?)";
-		}
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
 			statement = connection.prepareStatement(sql);
 			for(int i=0;i<memberArr.length;i++){
-				statement.setString((i+1), memberArr[i].getMMemberUserName());
-				statement.setInt((i+2), memberArr[i].getMMemberGroupId());
-				statement.setString((i+3), memberArr[i].getMMemberGroupHxid());
-				statement.setInt((i+4), memberArr[i].getMMemberPermission());
+				statement.setString(1, memberArr[i].getMMemberUserName());
+				statement.setInt(2, memberArr[i].getMMemberGroupId());
+				statement.setString(3, memberArr[i].getMMemberGroupHxid());
+				statement.setInt(4, memberArr[i].getMMemberPermission());
+				statement.addBatch();
 			}
-			int count = statement.executeUpdate();
-			return count > 0;
+			
+//			int count = statement.executeUpdate();
+			int[] countArr = statement.executeBatch();
+			System.out.println(Arrays.toString(countArr));
+			System.out.println(countArr.length);
+			return countArr.length>0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -710,13 +732,14 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize) {
 		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME + I.User.TABLE_NAME +  
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
 				" where " + I.Member.GROUP_ID + "=? "
 				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
 				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
 		if(pageId!=null&&pageSize!=null){
 			sql += " limit ?,?";
 		}
+		System.out.println("sql:"+sql);
 		PreparedStatement statement = null;
 		ResultSet rs = null;
 		try {
@@ -729,12 +752,12 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 				statement.setInt(3, niPageSize);
 			}
 			rs = statement.executeQuery();
-			if (rs.next()) {
+			while (rs.next()) {
 				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
 				initMemberUserAvatar(rs,memberUserAvatar);
 				list.add(memberUserAvatar);
-				return list;
 			}
+			return list;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -759,13 +782,14 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId, String pageId, String pageSize) {
 		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME + I.User.TABLE_NAME +  
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
 				" where " + I.Member.GROUP_HX_ID + "=? "
 				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
 				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
 		if(pageId!=null&&pageSize!=null){
 			sql += " limit ?,?";
 		}
+		System.out.println("sql:"+sql);
 		PreparedStatement statement = null;
 		ResultSet rs = null;
 		try {
@@ -778,12 +802,12 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 				statement.setInt(3, niPageSize);
 			}
 			rs = statement.executeQuery();
-			if (rs.next()) {
+			while (rs.next()) {
 				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
 				initMemberUserAvatar(rs,memberUserAvatar);
 				list.add(memberUserAvatar);
-				return list;
 			}
+			return list;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -1031,5 +1055,105 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			JdbcUtils.closeAll(null, statement, connection);
 		}
 		return false;
+	}
+
+	@Override
+	public UserAvatarContact findContactAllByUserName(String userName) {
+		ResultSet rs = null;
+		PreparedStatement statement = null;
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Contact.TABLE_NAME + ","+ I.User.TABLE_NAME + ","+ I.Avatar.TABLE_NAME 
+				+ " where "	+ I.Contact.USER_NAME + "=?" 
+				+ " and " + I.User.USER_NAME + "=" + I.Contact.CU_NAME + " " 
+				+ " and " + I.User.USER_NAME + "=" + I.Avatar.USER_NAME + " ";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userName);
+			rs = statement.executeQuery();
+			boolean flag = true;
+			UserAvatarContact uac = new UserAvatarContact();
+			List<UserAvatar> listUserAvatar = new ArrayList<UserAvatar>();
+			while (rs.next()) {
+				if(flag){
+					uac.setMContactId(rs.getInt(I.Contact.CONTACT_ID));
+					uac.setMContactUserName(rs.getString(I.Contact.USER_NAME));
+					flag = false;
+				}
+				UserAvatar ua = new UserAvatar();
+				initUserAvatar(rs,ua);
+				listUserAvatar.add(ua);
+			}
+			uac.setListUserAvatar(listUserAvatar);
+			return uac;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+
+	public Location getLocationByUserName(String userName){
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Location.TABLE_NAME+" where "+I.Location.USER_NAME + "=?";
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		Location location = new Location();
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userName);
+			rs = statement.executeQuery();
+			if(rs.next()){
+				location.setMLocationLatitude(rs.getDouble(I.Location.LATITUDE));
+				location.setMLocationLongitude(rs.getDouble(I.Location.LONGITUDE));
+			}
+			return location;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+	
+	@Override
+	public List<LocationUserAvatar> downloadLocation(String userName, String pageId, String pageSize) {
+		Connection connection = JdbcUtils.getConnection();
+		Location location = getLocationByUserName(userName);
+		String sql = "SELECT *,LEFT ((2 * ASIN (SQRT (POW (SIN ((RADIANS ("+location.getMLocationLatitude()+") - RADIANS ("+I.Location.LATITUDE+")) / 2),"
+						+"2) + COS (RADIANS("+location.getMLocationLatitude()+")) * COS (RADIANS("+I.Location.LATITUDE+")) * POW ("
+						+"SIN ((RADIANS ("+location.getMLocationLongitude()+") - RADIANS ("+I.Location.LONGITUDE+")) / 2),2))) * 6378.137),4)"
+						+ " AS distance"
+						+ " FROM "+I.User.TABLE_NAME+","+I.Avatar.TABLE_NAME+","+I.Location.TABLE_NAME
+						+" where "+I.User.USER_NAME+" != ? and "+I.User.USER_NAME+" = "+I.Location.USER_NAME
+						+" and "+I.User.USER_NAME +" = " +I.Avatar.USER_NAME +" and "+ I.Avatar.AVATAR_TYPE + "= 0"
+						+" HAVING distance <= "+I.DEFAULT_DISTANCE+" ORDER BY distance ASC limit ?,?";
+		System.out.println("connection=" + connection + ",sql=" + sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, userName);
+			Integer niPageId = Integer.parseInt(pageId);
+			Integer niPageSize = Integer.parseInt(pageSize);
+			statement.setInt(2, (niPageId-1)*niPageSize);
+			statement.setInt(3, niPageSize);
+			rs = statement.executeQuery();
+			List<LocationUserAvatar> listLocationUserAvatar = new ArrayList<LocationUserAvatar>();
+			while (rs.next()) {
+				LocationUserAvatar lua = new LocationUserAvatar();
+				initUserAvatar(rs,lua);
+				initLocation(rs,lua);
+				lua.setDistance(rs.getDouble("distance"));
+				listLocationUserAvatar.add(lua);
+			}
+			return listLocationUserAvatar;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
 	}
 }

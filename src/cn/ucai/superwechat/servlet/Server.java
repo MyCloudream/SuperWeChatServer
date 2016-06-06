@@ -59,9 +59,13 @@ public class Server extends HttpServlet {
 		case I.REQUEST_UPDATE_USER_PASSWORD:
 			updateUserPassowrdByName(request,response);
 			break;
-		// 下载好友列表，分页显示的数据
-		case I.REQUEST_DOWNLOAD_CONTACT_LIST:
-			downloadContactList(request, response);
+		// 下载好友列表，显示全部数据
+		case I.REQUEST_DOWNLOAD_CONTACT_ALL_LIST:
+			downloadContactAllList(request, response);
+			break;
+			// 下载好友列表，分页显示的数据
+		case I.REQUEST_DOWNLOAD_CONTACT_PAGE_LIST:
+			downloadContactPageList(request, response);
 			break;
 		case I.REQUEST_ADD_CONTACT:
 			addContact(request, response);
@@ -120,6 +124,9 @@ public class Server extends HttpServlet {
 		case I.REQUEST_UPDATE_LOCATION:
 			updateLocation(request, response);
 			break;
+		case I.REQUEST_DOWNLOAD_LOCATION:
+			downloadLocation(request, response);
+			break;
 			/*case I.REQUEST_DOWNLOAD_GROUP_AVATAR:
 			downloadGroupAvatar(request, response);
 			break;
@@ -131,9 +138,6 @@ public class Server extends HttpServlet {
 			break;
 		case I.REQUEST_FIND_USERS_BY_NICK:
 			findUsersByNick(request, response);
-			break;
-		case I.REQUEST_DOWNLOAD_LOCATION:
-			downloadLocation(request, response);
 			break;
 		case I.REQUEST_ADD_GROUP_MEMBER_BY_USERNAME:
 			addGroupMemberByUserName(request,response);
@@ -169,6 +173,14 @@ public class Server extends HttpServlet {
 		}
 	}
 	
+	private void downloadLocation(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter(I.Location.USER_NAME);
+		String pageId = request.getParameter(I.PAGE_ID);
+		String pageSize = request.getParameter(I.PAGE_SIZE);
+		Result result = biz.downloadLocation(userName,pageId,pageSize);
+		JsonUtil.writeJsonToClient(result, response);
+	}
+
 	/**
 	 * 更新用户地理位置
 	 * @param request
@@ -263,7 +275,7 @@ public class Server extends HttpServlet {
 	}
 
 	private void downloadGroupMembersByHxId(HttpServletRequest request, HttpServletResponse response) {
-		String hxId = request.getParameter(I.Group.HX_ID);
+		String hxId = request.getParameter(I.Member.GROUP_HX_ID);
 		String pageId = request.getParameter(I.PAGE_ID);
 		String pageSize = request.getParameter(I.PAGE_SIZE);
 		// 下载群组成员，如果有pageId和pageSize，则分页下载
@@ -272,7 +284,7 @@ public class Server extends HttpServlet {
 	}
 
 	private void downloadGroupMembersByGroupId(HttpServletRequest request, HttpServletResponse response) {
-		String groupId = request.getParameter(I.Group.GROUP_ID);
+		String groupId = request.getParameter(I.Member.GROUP_ID);
 		String pageId = request.getParameter(I.PAGE_ID);
 		String pageSize = request.getParameter(I.PAGE_SIZE);
 		// 下载群组成员，如果有pageId和pageSize，则分页下载
@@ -359,11 +371,23 @@ public class Server extends HttpServlet {
 	 * @param request
 	 * @param response
 	 */
-	private void downloadContactList(HttpServletRequest request, HttpServletResponse response) {
+	private void downloadContactPageList(HttpServletRequest request, HttpServletResponse response) {
 		String userName = request.getParameter(I.Contact.USER_NAME);
 		String pageId = request.getParameter(I.PAGE_ID);
 		String pageSize = request.getParameter(I.PAGE_SIZE);
 		Result result = biz.findContactPagesByUserName(userName, pageId, pageSize);
+		JsonUtil.writeJsonToClient(result, response);
+		
+	}
+	
+	/**
+	 * 下载所有好友列表
+	 * @param request
+	 * @param response
+	 */
+	private void downloadContactAllList(HttpServletRequest request, HttpServletResponse response) {
+		String userName = request.getParameter(I.Contact.USER_NAME);
+		Result result = biz.findContactAllByUserName(userName);
 		JsonUtil.writeJsonToClient(result, response);
 		
 	}

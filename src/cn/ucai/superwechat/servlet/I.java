@@ -64,10 +64,11 @@ public interface I {
 	String UTF_8 									= 		"utf-8";
 	String PAGE_ID 									= 		"page_id";						//分页的起始下标
 	String PAGE_SIZE 								= 		"page_size";					//分页的每页数量
+	int DEFAULT_DISTANCE = 100; // 查找附近的人时，默认距离为100KM
 	int ID_DEFAULT									=		0;								//ID默认值
 	int UN_READ_MSG_COUNT_DEFAULT					=		0;								//未读消息数量默认值
 	int GROUP_MAX_USERS_DEFAULT 					= 		-1;								//群组最大人数默认值
-	int GROUP_AFFILIATIONS_COUNT_DEFAULT 			= 		0;								//群组人数默认值
+	int GROUP_AFFILIATIONS_COUNT_DEFAULT 			= 		1;								//群组人数默认值
 	int PERMISSION_NORMAL							= 		0;								//普通用户群组权限
 	int PERMISSION_OWNER							= 		1;								//群组所有者群组权限
 	int AVATAR_TYPE_USER							=		0;								//用户头像
@@ -131,6 +132,7 @@ public interface I {
 	int MSG_LOCATION_UPLOAD_FAIL					=		502;							//用户上传地理位置失败
 	int MSG_LOCATION_UPDATE_SUCCESS					=		503;							//用户更新地理位置成功
 	int MSG_LOCATION_UPDATE_FAIL					=		504;							//用户更新地理位置失败
+	int MSG_LOCATION_GET_FAIL					=		505;							// 获取附近的人失败
 	int MSG_UNKNOW									=		999;							//未知错误
 	int MSG_ILLEGAL_REQUEST							=		-1;							//非法请求
 
@@ -166,7 +168,7 @@ public interface I {
 	/** 客户端发送的下载联系人所有集合请求 */
 	String REQUEST_DOWNLOAD_CONTACT_ALL_LIST 		= 		"download_contact_all_list";
 	/** 客户端发送的下载联系人集合请求 */
-	String REQUEST_DOWNLOAD_CONTACT_LIST 			= 		"download_contact_list";
+	String REQUEST_DOWNLOAD_CONTACT_PAGE_LIST 			= 		"download_contact_page_list";
 	/** 客户端发送的删除联系人请求 */
 	String REQUEST_DELETE_CONTACT 					= 		"delete_contact";
 	/** 客户端发送的添加联系人请求 */
