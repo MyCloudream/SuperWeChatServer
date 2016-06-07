@@ -141,21 +141,35 @@ public interface ISuperWeChatBiz {
 	 */
 	Result addGroupMembers(String userNameArr, String hxId);
 	/**
-	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据群组id，下载群组成员
+	 * @param groupId
+	 * @return
+	 */
+	Result downloadGroupMembersByGroupId(String groupId);
+	/**
+	 * 根据群组id，分页下载群组成员
 	 * @param groupId
 	 * @param pageId
 	 * @param pageSize
 	 * @return
 	 */
-	Result downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize);
+	Result downloadGroupMembersPagesByGroupId(String groupId, String pageId, String pageSize);
 	/**
-	 * 根据环信ID，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据环信ID，下载全部群组成员
 	 * @param hxId
 	 * @param pageId
 	 * @param pageSize
 	 * @return
 	 */
-	Result downloadGroupMembersByHxId(String hxId, String pageId, String pageSize);
+	Result downloadGroupMembersByHxId(String hxId);
+	/**
+	 * 根据环信ID，分页下载群组成员
+	 * @param hxId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	Result downloadGroupMembersPagesByHxId(String hxId, String pageId, String pageSize);
 	/**
 	 * 删除群成员
 	 * @param userName

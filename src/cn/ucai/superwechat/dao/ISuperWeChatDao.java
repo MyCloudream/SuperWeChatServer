@@ -151,21 +151,35 @@ public interface ISuperWeChatDao {
 	 */
 	public boolean addGroupMembers(Member[] memberArr);
 	/**
-	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据群组id，下载群组成员
 	 * @param groupId
-	 * @param pageId
-	 * @param pageSize
 	 * @return
 	 */
-	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize);
+	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId);
 	/**
-	 * 根据环信id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据群组id，分页下载群组成员
 	 * @param groupId
 	 * @param pageId
 	 * @param pageSize
 	 * @return
 	 */
-	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId, String pageId, String pageSize);
+	public List<MemberUserAvatar> downloadGroupMembersPagesByGroupId(String groupId, String pageId, String pageSize);
+	/**
+	 * 根据环信id，下载全部群组成员
+	 * @param groupId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId);
+	/**
+	 * 根据环信id，分页下载群组成员
+	 * @param groupId
+	 * @param pageId
+	 * @param pageSize
+	 * @return
+	 */
+	public List<MemberUserAvatar> downloadGroupMembersPagesByHxId(String hxId, String pageId, String pageSize);
 	/**
 	 * 在群组中删除某指定姓名的用户
 	 * @param userName

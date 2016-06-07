@@ -477,9 +477,24 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	}
 
 	@Override
-	public Result downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize) {
+	public Result downloadGroupMembersByGroupId(String groupId) {
 		Result result = new Result();
-		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersByGroupId(groupId, pageId, pageSize);
+		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersByGroupId(groupId);
+		if(listMemberUserAvatar!=null){
+			result.setRetData(listMemberUserAvatar);
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+		}else{
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
+		}
+		return result;
+	}
+	
+	@Override
+	public Result downloadGroupMembersPagesByGroupId(String groupId, String pageId, String pageSize) {
+		Result result = new Result();
+		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersPagesByGroupId(groupId, pageId, pageSize);
 		if(listMemberUserAvatar!=null){
 			result.setRetData(listMemberUserAvatar);
 			result.setRetMsg(true);
@@ -492,9 +507,24 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	}
 
 	@Override
-	public Result downloadGroupMembersByHxId(String hxId, String pageId, String pageSize) {
+	public Result downloadGroupMembersByHxId(String hxId) {
 		Result result = new Result();
-		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersByHxId(hxId, pageId, pageSize);
+		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersByHxId(hxId);
+		if(listMemberUserAvatar!=null){
+			result.setRetData(listMemberUserAvatar);
+			result.setRetMsg(true);
+			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+		}else{
+			result.setRetMsg(false);
+			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
+		}
+		return result;
+	}
+	
+	@Override   //downloadGroupMembersPagesByHxId
+	public Result downloadGroupMembersPagesByHxId(String hxId, String pageId, String pageSize) {
+		Result result = new Result();
+		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersPagesByHxId(hxId, pageId, pageSize);
 		if(listMemberUserAvatar!=null){
 			result.setRetData(listMemberUserAvatar);
 			result.setRetMsg(true);
@@ -569,7 +599,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(ga!=null){
 			result.setRetMsg(true);
 			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-			result.setRetData(result);
+			result.setRetData(ga);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_FIND_BY_GOURP_ID_FAIL);
@@ -584,7 +614,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(ga!=null){
 			result.setRetMsg(true);
 			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-			result.setRetData(result);
+			result.setRetData(ga);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_FIND_BY_HX_ID_FAIL);

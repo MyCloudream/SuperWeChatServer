@@ -726,31 +726,58 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	}
 
 	/**
-	 * 根据群组id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据群组id，下载群组成员
 	 */
 	@Override
-	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId, String pageId, String pageSize) {
+	public List<MemberUserAvatar> downloadGroupMembersByGroupId(String groupId) {
 		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
 				" where " + I.Member.GROUP_ID + "=? "
 				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
 				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
-		if(pageId!=null&&pageSize!=null){
-			sql += " limit ?,?";
-		}
 		System.out.println("sql:"+sql);
 		PreparedStatement statement = null;
 		ResultSet rs = null;
 		try {
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, groupId);
-			if(pageId!=null&&pageSize!=null){
-				Integer niPageId = Integer.parseInt(pageId);
-				Integer niPageSize = Integer.parseInt(pageSize);
-				statement.setInt(2, (niPageId-1)*niPageSize);
-				statement.setInt(3, niPageSize);
+			rs = statement.executeQuery();
+			while (rs.next()) {
+				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
+				initMemberUserAvatar(rs,memberUserAvatar);
+				list.add(memberUserAvatar);
 			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+	/**
+	 * 根据群组id，分页下载群组成员
+	 */
+	@Override
+	public List<MemberUserAvatar> downloadGroupMembersPagesByGroupId(String groupId, String pageId, String pageSize) {
+		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
+				" where " + I.Member.GROUP_ID + "=? "
+				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
+				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME
+				+ " limit ?,?";
+		System.out.println("sql:"+sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, groupId);
+			Integer niPageId = Integer.parseInt(pageId);
+			Integer niPageSize = Integer.parseInt(pageSize);
+			statement.setInt(2, (niPageId-1)*niPageSize);
+			statement.setInt(3, niPageSize);
 			rs = statement.executeQuery();
 			while (rs.next()) {
 				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
@@ -776,31 +803,58 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	}
 
 	/**
-	 * 根据环信id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 * 根据环信id，下载群组成员
 	 */
 	@Override
-	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId, String pageId, String pageSize) {
+	public List<MemberUserAvatar> downloadGroupMembersByHxId(String hxId) {
 		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
 				" where " + I.Member.GROUP_HX_ID + "=? "
 				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
 				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME;
-		if(pageId!=null&&pageSize!=null){
-			sql += " limit ?,?";
-		}
 		System.out.println("sql:"+sql);
 		PreparedStatement statement = null;
 		ResultSet rs = null;
 		try {
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, hxId);
-			if(pageId!=null&&pageSize!=null){
-				Integer niPageId = Integer.parseInt(pageId);
-				Integer niPageSize = Integer.parseInt(pageSize);
-				statement.setInt(2, (niPageId-1)*niPageSize);
-				statement.setInt(3, niPageSize);
+			rs = statement.executeQuery();
+			while (rs.next()) {
+				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
+				initMemberUserAvatar(rs,memberUserAvatar);
+				list.add(memberUserAvatar);
 			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			JdbcUtils.closeAll(rs, statement, connection);
+		}
+		return null;
+	}
+	/**
+	 * 根据环信id，下载群组成员，如果有pageId和pageSize，则分页下载
+	 */
+	@Override
+	public List<MemberUserAvatar> downloadGroupMembersPagesByHxId(String hxId, String pageId, String pageSize) {
+		List<MemberUserAvatar> list = new ArrayList<MemberUserAvatar>();
+		Connection connection = JdbcUtils.getConnection();
+		String sql = "select * from " + I.Member.TABLE_NAME +","+ I.Avatar.TABLE_NAME +","+ I.User.TABLE_NAME +  
+				" where " + I.Member.GROUP_HX_ID + "=? "
+				+ " and " + I.Member.USER_NAME + "=" + I.User.USER_NAME
+				+ " and " + I.Avatar.USER_NAME + "=" + I.User.USER_NAME
+				+ " limit ?,?";
+		System.out.println("sql:"+sql);
+		PreparedStatement statement = null;
+		ResultSet rs = null;
+		try {
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, hxId);
+			Integer niPageId = Integer.parseInt(pageId);
+			Integer niPageSize = Integer.parseInt(pageSize);
+			statement.setInt(2, (niPageId-1)*niPageSize);
+			statement.setInt(3, niPageSize);
 			rs = statement.executeQuery();
 			while (rs.next()) {
 				MemberUserAvatar memberUserAvatar = new MemberUserAvatar();
@@ -879,23 +933,31 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		PreparedStatement statement = null;
 		try {
 			connection.setAutoCommit(false);
-			String sql = "delete from " + I.Group.TABLE_NAME + " where " + I.Group.GROUP_ID + "=?";
+			// 删除群成员
+			String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.GROUP_ID + "=?";
 			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, Integer.parseInt(groupId));
 			statement.executeUpdate();
-			
-			sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.GROUP_ID + "=?";
+			// 删除群组
+			sql = "delete from " + I.Group.TABLE_NAME + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("connection=" + connection + ",sql=" + sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, Integer.parseInt(groupId));
+			statement.executeUpdate();
+			// 删除群组头像
+			sql = "delete from " + I.Avatar.TABLE_NAME + " where " + I.Avatar.USER_NAME 
+					+ "=(select "+I.Group.HX_ID+" from "+I.Group.TABLE_NAME+" where "+I.Group.GROUP_ID+"=?)";
 			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, Integer.parseInt(groupId));
 			statement.executeUpdate();
 			connection.commit();
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
 				connection.rollback();
-				return false;
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -950,7 +1012,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME
 				+ " and " + I.Avatar.AVATAR_TYPE + "=1 "
 				+ " and " + I.Group.GROUP_ID + " not in ("
-				+ "select " + I.Member.GROUP_ID + " from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?"
+				+ "select distinct " + I.Member.GROUP_ID + " from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?"
 				+ ") limit ?,?";
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		PreparedStatement statement = null;
@@ -959,7 +1021,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, I.GROUP_PUBLIC);
 			statement.setString(2, userName);
-			statement.setInt(3, pageId);
+			statement.setInt(3, (pageId-1)*pageSize);
 			statement.setInt(4, pageSize);
 			rs = statement.executeQuery();
 			while (rs.next()) {
@@ -981,7 +1043,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		List<GroupAvatar> listGroupAvatar = new ArrayList<GroupAvatar>();
 		Connection connection = JdbcUtils.getConnection();
 		String sql = "select * from " + I.Group.TABLE_NAME + ","+ I.Avatar.TABLE_NAME 
-				+ " where " + I.Group.NAME + "=?"
+				+ " where " + I.Group.NAME + " like ?"
 				+ " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME
 				+ " and " + I.Avatar.AVATAR_TYPE + "=1 ";
 		System.out.println("connection=" + connection + ",sql=" + sql);
@@ -989,7 +1051,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		ResultSet rs = null;
 		try {
 			statement = connection.prepareStatement(sql);
-			statement.setString(1, groupName);
+			statement.setString(1, "%"+groupName+"%");
 			rs = statement.executeQuery();
 			while (rs.next()) {
 				GroupAvatar groupAvatar = new GroupAvatar();
