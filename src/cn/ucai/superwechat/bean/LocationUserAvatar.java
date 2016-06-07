@@ -2,7 +2,7 @@ package cn.ucai.superwechat.bean;
 
 public class LocationUserAvatar extends UserAvatar {
 	private Integer mlocationId;
-	private String mlocationUserName;
+//	private String mlocationUserName;
 	private Double mlocationLatitude;
 	private Double mlocationLongitude;
 	private Boolean mlocationIsSearched;
@@ -11,32 +11,31 @@ public class LocationUserAvatar extends UserAvatar {
 	public LocationUserAvatar() {
 		super();
 	}
-	public LocationUserAvatar(String muserName, String muserPassword, String muserNick, Integer muserUnreadMsgCount,
-			Integer mavatarId, String mavatarUserName, String mavatarPath, Integer mavatarType,
-			String mavatarLastUpdateTime,Integer mlocationId, String mlocationUserName, Double mlocationLatitude,
-			Double mlocationLongitude, Boolean mlocationIsSearched, String mlocationLastUpdateTime,Double distance) {
-		super(muserName, muserPassword, muserNick, muserUnreadMsgCount, mavatarId, mavatarUserName, mavatarPath, mavatarType,
-				mavatarLastUpdateTime);
+
+	public LocationUserAvatar(String muserName, String muserNick, Integer mavatarId, String mavatarPath,
+			Integer mavatarType, String mavatarLastUpdateTime,Integer mlocationId, Double mlocationLatitude, Double mlocationLongitude,
+			Boolean mlocationIsSearched, String mlocationLastUpdateTime, Double distance) {
+		super(muserName, muserNick, mavatarId, mavatarPath, mavatarType, mavatarLastUpdateTime);
 		this.mlocationId = mlocationId;
-		this.mlocationUserName = mlocationUserName;
 		this.mlocationLatitude = mlocationLatitude;
 		this.mlocationLongitude = mlocationLongitude;
 		this.mlocationIsSearched = mlocationIsSearched;
 		this.mlocationLastUpdateTime = mlocationLastUpdateTime;
 		this.distance = distance;
 	}
+
 	public Integer getMLocationId() {
 		return mlocationId;
 	}
 	public void setMLocationId(Integer mlocationId) {
 		this.mlocationId = mlocationId;
 	}
-	public String getMLocationUserName() {
+/*	public String getMLocationUserName() {
 		return mlocationUserName;
 	}
 	public void setMLocationUserName(String mlocationUserName) {
 		this.mlocationUserName = mlocationUserName;
-	}
+	}*/
 	public Double getMLocationLatitude() {
 		return mlocationLatitude;
 	}

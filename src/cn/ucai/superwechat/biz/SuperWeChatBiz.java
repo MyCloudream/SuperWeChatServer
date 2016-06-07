@@ -12,8 +12,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
 import cn.ucai.superwechat.bean.GroupAvatar;
 import cn.ucai.superwechat.bean.LocationUserAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
@@ -24,7 +22,6 @@ import cn.ucai.superwechat.dao.ISuperWeChatDao;
 import cn.ucai.superwechat.dao.SuperWeChatDao;
 import cn.ucai.superwechat.pojo.Group;
 import cn.ucai.superwechat.pojo.Location;
-import cn.ucai.superwechat.pojo.Member;
 import cn.ucai.superwechat.pojo.User;
 import cn.ucai.superwechat.servlet.I;
 
@@ -166,11 +163,12 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	@Override
 	public Result login(User user) {
 		Result result = new Result();
-		UserAvatar ua = dao.findUserAvatarByUserName(user.getMUserName());
-		if(ua!=null){
-			if(ua.getMUserPassword().equals(user.getMUserPassword())){
+		User u = dao.findUserByUserName(user.getMUserName());
+		if(u!=null){
+			if(u.getMUserPassword().equals(user.getMUserPassword())){
 				result.setRetMsg(true);
 				result.setRetCode(I.MSG_LOGIN_SUCCESS);
+				UserAvatar ua = dao.findUserAvatarByUserName(user.getMUserName());
 				result.setRetData(ua);
 			}else{
 				result.setRetMsg(false);
@@ -263,7 +261,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		}else{
 			if(dao.updatePasswordByName(userName,userPassword)){
 				result.setRetMsg(true);
-				ua.setMUserPassword(userPassword);
+//				ua.setMUserPassword(userPassword);
 				result.setRetData(ua);
 				result.setRetCode(I.MSG_USER_UPDATE_PASSWORD_SUCCESS);
 			}else{
@@ -431,17 +429,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		GroupAvatar groupAvatar = dao.findGroupAvatarByHxId(hxId);
 		if(groupAvatar!=null){
-			Member member = new Member(userName,groupAvatar.getMGroupId(),groupAvatar.getMGroupHxid(),I.PERMISSION_NORMAL);
-			if(dao.addGroupMember(member)){// 添加成员成功
-				groupAvatar.setMGroupLastModifiedTime(System.currentTimeMillis()+"");
-				groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+1);
-				// 更新群组最后更新时间和群组人数
-				if(dao.updateGroupAffiliationsCount(groupAvatar)){
-					result.setRetMsg(true);
-					result.setRetData(groupAvatar);
-					result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-					return result;
-				}
+			if(dao.addGroupMemberAndUpdateGroupAffiliationsCount(userName,groupAvatar)){// 添加成员成功
+				result.setRetMsg(true);
+				result.setRetData(groupAvatar);
+				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				return result;
 			}
 		}
 		result.setRetCode(I.MSG_GROUP_ADD_MEMBER_FAIL);
@@ -454,21 +446,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		GroupAvatar groupAvatar = dao.findGroupAvatarByHxId(hxId);
 		if(groupAvatar!=null){
-			String[] userNames = userNameArr.split(",");
-			Member[] memberArr = new Member[userNames.length];
-			for(int i=0;i<userNames.length;i++){
-				memberArr[i] = new Member(userNames[i],groupAvatar.getMGroupId(),groupAvatar.getMGroupHxid(),I.PERMISSION_NORMAL);
-			}
-			if(dao.addGroupMembers(memberArr)){// 添加成员成功
-				groupAvatar.setMGroupLastModifiedTime(System.currentTimeMillis()+"");
-				groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+userNames.length);
-				// 更新群组最后更新时间和群组人数
-				if(dao.updateGroupAffiliationsCount(groupAvatar)){
-					result.setRetMsg(true);
-					result.setRetData(groupAvatar);
-					result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-					return result;
-				}
+			if(dao.addGroupMembersAndUpdateGroupAffiliationsCount(userNameArr,groupAvatar)){// 添加成员成功
+				result.setRetMsg(true);
+				result.setRetData(groupAvatar);
+				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				return result;
 			}
 		}
 		result.setRetCode(I.MSG_GROUP_ADD_MEMBER_FAIL);
@@ -541,16 +523,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		GroupAvatar groupAvatar = dao.findGroupAvatarByGroupId(groupId);
 		if(groupAvatar!=null){
-			if(dao.delGroupMember(userName,groupId)){// 删除群成员
-				groupAvatar.setMGroupLastModifiedTime(System.currentTimeMillis()+"");
-				groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+1);
-				// 更新群组最后更新时间和群组人数
-				if(dao.updateGroupAffiliationsCount(groupAvatar)){
-					result.setRetMsg(true);
-					result.setRetData(groupAvatar);
-					result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-					return result;
-				}
+			if(dao.delGroupMemberAndUpdateGroupAffiliationsCount(userName,groupAvatar)){// 删除群成员
+				result.setRetMsg(true);
+				result.setRetData(groupAvatar);
+				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				return result;
 			}
 		}
 		result.setRetCode(I.MSG_GROUP_DELETE_MEMBER_FAIL);
@@ -563,15 +540,10 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		GroupAvatar groupAvatar = dao.findGroupAvatarByGroupId(groupId);
 		Result result = new Result();
 		if(groupAvatar!=null){
-			String[] userNameArr = userNames.split(",");
-			if(dao.delGroupMembers(userNames, groupId)){
-				groupAvatar.setMGroupLastModifiedTime(System.currentTimeMillis()+"");
-				groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+userNameArr.length);
-				if(dao.updateGroupAffiliationsCount(groupAvatar)){
-					result.setRetMsg(true);
-					result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-					return result;
-				}
+			if(dao.delGroupMembersAndUpdateGroupAffiliationsCount(userNames, groupAvatar)){
+				result.setRetMsg(true);
+				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				return result;
 			}
 		}
 		result.setRetCode(I.MSG_GROUP_DELETE_MEMBERS_FAIL);

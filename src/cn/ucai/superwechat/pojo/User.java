@@ -7,7 +7,7 @@ public class User implements Serializable {
 	private String muserName;
 	private String muserPassword;
 	private String muserNick;
-	private Integer muserUnreadMsgCount;
+//	private Integer muserUnreadMsgCount;
 	public User(){
 		super();
 	}
@@ -16,12 +16,6 @@ public class User implements Serializable {
 		this.muserName = muserName;
 		this.muserPassword = muserPassword;
 		this.muserNick = muserNick;
-	}
-	public User(String muserName,String muserPassword,String muserNick,Integer muserUnreadMsgCount){
-		this.muserName = muserName;
-		this.muserPassword = muserPassword;
-		this.muserNick = muserNick;
-		this.muserUnreadMsgCount = muserUnreadMsgCount;
 	}
 	
 	public String getMUserName() {
@@ -47,23 +41,10 @@ public class User implements Serializable {
 	public void setMUserNick(String muserNick){
 		this.muserNick = muserNick;
 	}
- 	
- 	public Integer getMUserUnreadMsgCount() {
- 		return this.muserUnreadMsgCount;
- 	}
- 	
-	public void setMUserUnreadMsgCount(Integer muserUnreadMsgCount){
-		this.muserUnreadMsgCount = muserUnreadMsgCount;
+
+	@Override
+	public String toString() {
+		return "User [muserName=" + muserName + ", muserPassword=" + muserPassword + ", muserNick=" + muserNick + "]";
 	}
- 	
- 	 	@Override
- 	public String toString() {
- 		return "User ["
- 	 	+ "this.muserName=" + muserName
-	 	+ "this.muserPassword=" + muserPassword
-	 	+ "this.muserNick=" + muserNick
-	 	+ "this.muserUnreadMsgCount=" + muserUnreadMsgCount
-		;
- 	}
  
 }

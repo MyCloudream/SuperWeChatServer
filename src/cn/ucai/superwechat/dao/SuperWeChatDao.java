@@ -62,6 +62,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			set = statement.executeQuery();
 			if (set.next()) {
 				User user = new User();
+				user.setMUserPassword(set.getString(I.User.PASSWORD));
 				System.out.println("user=" + userName.toString());
 				return user;
 			}
@@ -185,11 +186,11 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 
 	private void initUserAvatar(ResultSet rs,UserAvatar userAvatar) throws SQLException {
 		userAvatar.setMUserName(rs.getString(I.User.USER_NAME));
-		userAvatar.setMUserPassword(rs.getString(I.User.PASSWORD));
+//		userAvatar.setMUserPassword(rs.getString(I.User.PASSWORD));
 		userAvatar.setMUserNick(rs.getString(I.User.NICK));
-		userAvatar.setMUserUnreadMsgCount(rs.getInt(I.User.UN_READ_MSG_COUNT));
+//		userAvatar.setMUserUnreadMsgCount(rs.getInt(I.User.UN_READ_MSG_COUNT));
 		userAvatar.setMAvatarId(rs.getInt(I.Avatar.AVATAR_ID));
-		userAvatar.setMAvatarUserName(rs.getString(I.Avatar.USER_NAME));
+//		userAvatar.setMAvatarUserName(rs.getString(I.Avatar.USER_NAME));
 		userAvatar.setMAvatarPath(rs.getString(I.Avatar.AVATAR_PATH));
 		userAvatar.setMAvatarType(rs.getInt(I.Avatar.AVATAR_TYPE));
 		userAvatar.setMAvatarLastUpdateTime(rs.getString(I.Avatar.UPDATE_TIME));
@@ -197,7 +198,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	
 	private void initLocation(ResultSet rs,LocationUserAvatar locationUserAvatar) throws SQLException {
 		locationUserAvatar.setMLocationId(rs.getInt(I.Location.LOCATION_ID));
-		locationUserAvatar.setMLocationUserName(rs.getString(I.Location.USER_NAME));
+//		locationUserAvatar.setMLocationUserName(rs.getString(I.Location.USER_NAME));
 		locationUserAvatar.setMLocationLatitude(rs.getDouble(I.Location.LATITUDE));
 		locationUserAvatar.setMLocationLongitude(rs.getDouble(I.Location.LONGITUDE));
 		locationUserAvatar.setMLocationIsSearched(Utils.int2boolean(rs.getInt(I.Location.IS_SEARCHED)));
@@ -646,31 +647,48 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	 * 添加群组成员信息
 	 */
 	@Override
-	public boolean addGroupMember(Member member) {
+	public boolean addGroupMemberAndUpdateGroupAffiliationsCount(String userName,GroupAvatar groupAvatar) {
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "insert into " + I.Member.TABLE_NAME + "(" 
-				+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
-				+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
-				+ ")values(?,?,?,?)";
-		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
+			connection.setAutoCommit(false);
+			Member member = new Member(userName,groupAvatar.getMGroupId(),groupAvatar.getMGroupHxid(),I.PERMISSION_NORMAL);
+			String sql = "insert into " + I.Member.TABLE_NAME + "(" 
+					+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
+					+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
+					+ ")values(?,?,?,?)";
+			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, member.getMMemberUserName());
 			statement.setInt(2, member.getMMemberGroupId());
 			statement.setString(3, member.getMMemberGroupHxid());
 			statement.setInt(4, member.getMMemberPermission());
-			int count = statement.executeUpdate();
-			return count > 0;
+			int count1 = statement.executeUpdate();
+			
+			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
+					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("sql"+sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()+1);
+			statement.setString(2, System.currentTimeMillis()+"");
+			statement.setInt(3, groupAvatar.getMGroupId());
+			int count2 = statement.executeUpdate();
+			connection.commit();
+			return count1 > 0 && count2>0;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 		} finally {
 			JdbcUtils.closeAll(null, statement, connection);
 		}
 		return false;
 	}
-
-	@Override
+	
+/*	@Override
 	public boolean updateGroupAffiliationsCount(GroupAvatar groupAvatar) {
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
@@ -692,17 +710,23 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		}
 		return false;
 	}
-
+*/
 	@Override
-	public boolean addGroupMembers(Member[] memberArr) {
+	public boolean addGroupMembersAndUpdateGroupAffiliationsCount(String userNameArr,GroupAvatar groupAvatar) {
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "insert into " + I.Member.TABLE_NAME + "(" 
-				+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
-				+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
-				+ ")values(?,?,?,?)";
-		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
+			connection.setAutoCommit(false);
+			String[] userNames = userNameArr.split(",");
+			Member[] memberArr = new Member[userNames.length];
+			for(int i=0;i<userNames.length;i++){
+				memberArr[i] = new Member(userNames[i],groupAvatar.getMGroupId(),groupAvatar.getMGroupHxid(),I.PERMISSION_NORMAL);
+			}
+			String sql = "insert into " + I.Member.TABLE_NAME + "(" 
+					+ I.Member.USER_NAME + "," + I.Member.GROUP_ID + "," 
+					+ I.Member.GROUP_HX_ID + "," + I.Member.PERMISSION 
+					+ ")values(?,?,?,?)";
+			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			for(int i=0;i<memberArr.length;i++){
 				statement.setString(1, memberArr[i].getMMemberUserName());
@@ -712,13 +736,27 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 				statement.addBatch();
 			}
 			
-//			int count = statement.executeUpdate();
 			int[] countArr = statement.executeBatch();
 			System.out.println(Arrays.toString(countArr));
 			System.out.println(countArr.length);
-			return countArr.length>0;
+			
+			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
+					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("sql"+sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()+memberArr.length);
+			statement.setString(2, System.currentTimeMillis()+"");
+			statement.setInt(3, groupAvatar.getMGroupId());
+			int count2 = statement.executeUpdate();
+			connection.commit();
+			return countArr.length > 0 && count2>0;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 		} finally {
 			JdbcUtils.closeAll(null, statement, connection);
 		}
@@ -796,7 +834,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	private void initMemberUserAvatar(ResultSet rs, MemberUserAvatar memberUserAvatar) throws SQLException {
 		initUserAvatar(rs, memberUserAvatar);
 		memberUserAvatar.setMMemberId(rs.getInt(I.Member.MEMBER_ID));
-		memberUserAvatar.setMMemberUserName(rs.getString(I.Member.USER_NAME));
+//		memberUserAvatar.setMMemberUserName(rs.getString(I.Member.USER_NAME));
 		memberUserAvatar.setMMemberGroupId(rs.getInt(I.Member.GROUP_ID));
 		memberUserAvatar.setMMemberGroupHxid(rs.getString(I.Member.GROUP_HX_ID));
 		memberUserAvatar.setMMemberPermission(rs.getInt(I.Member.PERMISSION));
@@ -874,18 +912,28 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	 * 删除指定群成员
 	 */
 	@Override
-	public boolean delGroupMember(String userName, String groupId) {
+	public boolean delGroupMemberAndUpdateGroupAffiliationsCount(String userName, GroupAvatar groupAvatar) {
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?" + " and "
-				+ I.Member.GROUP_ID + " =?";
-		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
+			connection.setAutoCommit(false);
+			String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + "=?" + " and "
+					+ I.Member.GROUP_ID + " =?";
+			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, userName);
-			statement.setInt(2, Integer.parseInt(groupId));
-			int count = statement.executeUpdate();
-			return count > 0;
+			statement.setInt(2, groupAvatar.getMGroupId());
+			int count1 = statement.executeUpdate();
+			
+			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
+					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("sql"+sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()-1);
+			statement.setString(2, System.currentTimeMillis()+"");
+			statement.setInt(3, groupAvatar.getMGroupId());
+			int count2 = statement.executeUpdate();
+			return count1 > 0 && count2 > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -901,18 +949,28 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	}
 
 	@Override
-	public boolean delGroupMembers(String userNames, String groupId) {
+	public boolean delGroupMembersAndUpdateGroupAffiliationsCount(String userNames, GroupAvatar groupAvatar) {
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + " in ("+"?) " + " and "
-				+ I.Member.GROUP_ID + " =?";
-		System.out.println("connection=" + connection + ",sql=" + sql);
 		PreparedStatement statement = null;
 		try {
+			connection.setAutoCommit(false);
+			String sql = "delete from " + I.Member.TABLE_NAME + " where " + I.Member.USER_NAME + " in ("+"?) " + " and "
+					+ I.Member.GROUP_ID + " =?";
+			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, userNames);
-			statement.setInt(2, Integer.parseInt(groupId));
-			int count = statement.executeUpdate();
-			return count > 0;
+			statement.setInt(2, groupAvatar.getMGroupId());
+			int count1 = statement.executeUpdate();
+			
+			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
+					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
+			System.out.println("sql"+sql);
+			statement = connection.prepareStatement(sql);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()-userNames.split(",").length);
+			statement.setString(2, System.currentTimeMillis()+"");
+			statement.setInt(3, groupAvatar.getMGroupId());
+			int count2 = statement.executeUpdate();
+			return count1 > 0 && count2 > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {

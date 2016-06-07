@@ -132,24 +132,23 @@ public interface ISuperWeChatDao {
 	 */
 	public boolean updateGroupNameByGroupId(String groupId, String groupNewName);
 	/**
-	 * 添加群组成员
-	 * @param member
+	 * 添加群组成员,并更新群当前总人数
 	 * @return
 	 */
-	public boolean addGroupMember(Member member);
-	/**
-	 * 修改群组人数
-	 * @param group
-	 * @param affiliationsCount
-	 * @return
-	 */
-	public boolean updateGroupAffiliationsCount(GroupAvatar groupAvatar);
+	public boolean addGroupMemberAndUpdateGroupAffiliationsCount(String userName,GroupAvatar groupAvatar);
+//	/**
+//	 * 修改群组人数
+//	 * @param group
+//	 * @param affiliationsCount
+//	 * @return
+//	 */
+//	public boolean updateGroupAffiliationsCount(GroupAvatar groupAvatar);
 	/**
 	 * 添加多个群组成员
 	 * @param memberArr
 	 * @return
 	 */
-	public boolean addGroupMembers(Member[] memberArr);
+	public boolean addGroupMembersAndUpdateGroupAffiliationsCount(String userNameArr,GroupAvatar groupAvatar);
 	/**
 	 * 根据群组id，下载群组成员
 	 * @param groupId
@@ -183,17 +182,17 @@ public interface ISuperWeChatDao {
 	/**
 	 * 在群组中删除某指定姓名的用户
 	 * @param userName
-	 * @param groupId
+	 * @param groupAvatar
 	 * @return
 	 */
-	public boolean delGroupMember(String userName, String groupId);
+	public boolean delGroupMemberAndUpdateGroupAffiliationsCount(String userName, GroupAvatar groupAvatar);
 	/**
 	 * 删除多个群组成员
 	 * @param userNames
-	 * @param groupId
+	 * @param groupAvatar
 	 * @return
 	 */
-	public boolean delGroupMembers(String userNames, String groupId);
+	public boolean delGroupMembersAndUpdateGroupAffiliationsCount(String userName, GroupAvatar groupAvatar);
 	/**
 	 * 删除群组，同时删除成员表中的该群组的所有成员
 	 * @param groupId
