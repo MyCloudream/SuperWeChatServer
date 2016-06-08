@@ -1,7 +1,7 @@
 package cn.ucai.superwechat.bean;
 
 public class Result {
-	private int retCode;
+	private int retCode = -1;
 	private boolean retMsg;
 	private Object retData;
 	public Result() {

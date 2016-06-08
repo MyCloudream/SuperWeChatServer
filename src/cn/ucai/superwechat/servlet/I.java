@@ -7,7 +7,6 @@ public interface I {
 		String USER_NAME 							= 		"m_user_name";					//用户账号
 		String PASSWORD 							= 		"m_user_password";				//用户密码
 		String NICK 								= 		"m_user_nick";					//用户昵称
-		String UN_READ_MSG_COUNT 					= 		"m_user_unread_msg_count";		//未读消息数量
 	}
 	
 	public static interface Contact {
@@ -59,7 +58,7 @@ public interface I {
 		String UPDATE_TIME 							= 		"m_location_last_update_time";	//最后更新时间
 	}
 
-	String AVATAR_PATH 								= 		"E:/test/";
+//	String AVATAR_PATH 								= 		"E:/test/";
 	String ISON8859_1 								= 		"iso8859-1";
 	String UTF_8 									= 		"utf-8";
 	String PAGE_ID 									= 		"page_id";						//分页的起始下标
@@ -82,57 +81,43 @@ public interface I {
 	String AVATAR_SUFFIX_JPG						=		".jpg";							//JPG图片后缀名
 	int LOCATION_IS_SEARCH_ALLOW					=		1;								//可以被搜索到地理位置
 	int LOCATION_IS_SEARCH_INHIBIT					=		0;								//禁止被搜索到地理位置
-	int MSG_CONNECTION_SUCCESS						=  		900;							//连接服务器成功
-	int MSG_DEFAULT_SUCCESS						    =  		0;							    //默认成功
-//	int MSG_CONNECTION_FAIL							=  		901;							//连接服务器失败
-	int MSG_UPLOAD_AVATAR_SUCCESS					=		902;							//上传头像成功
-	int MSG_UPLOAD_AVATAR_FAIL						=		903;							//上传头像失败
-	int MSG_REGISTER_SUCCESS						=  		101;							//注册成功
-	int MSG_REGISTER_USERNAME_EXISTS				=		102;							//账号已经存在
-	int MSG_REGISTER_UPLOAD_AVATAR_FAIL				=		103;							//上传头像失败
-	int MSG_REGISTER_UPLOAD_AVATAR_SUCCESS			=		104;							//上传头像成功
-	int MSG_REGISTER_FAIL							=		105;							//注册失败
-	int MSG_UNREGISTER_SUCCESS						=  		106;							//取消注册成功
-	int MSG_UNREGISTER_FAIL							=		107;							//注册失败
-	int MSG_CONTACT_FIRENDED						=		201;							//已经是好友关系
-	int MSG_CONTACT_ADD_FAIL						=		202;							//好友关系添加失败
-	int MSG_CONTACT_DEL_FAIL						=		203;							//好友关系删除失败
-	int MSG_GET_CONTACT_PAGES_FAIL					=		204;							// 获取好友列表失败
-	int MSG_USER_SEARCH_FAIL		    			=		205;							// 查找用户失败
-	int MSG_GROUP_CREATE_SCUUESS					=		301;							//创建群组成功
-	int MSG_GROUP_HXID_EXISTS						=		302;							//群组环信ID已经存在
-	int MSG_GROUP_CREATE_FAIL						=		303;							//创建群组失败
-	int MSG_GROUP_ADD_MEMBER_FAIL					=		304;							//添加群组成员失败
-	int MSG_GROUP_GET_MEMBERS_FAIL					=		304;							//获取群成员失败
-	int MSG_GROUP_ADD_MEMBER_SCUUESS				=		305;							//添加群组成员成功
-	int MSG_GROUP_UNKONW							=		306;							//群组不存在
-	int MSG_GROUP_SAME_NAME							=		307;							//群组名称未修改
-	int MSG_GROUP_UPDATE_NAME_SUCCESS				=		308;							//群组名称修改成功
-	int MSG_GROUP_UPDATE_NAME_FAIL					=		309;							//群组名称修改失败
-	int MSG_GROUP_DELETE_MEMBER_SUCCESS				=		310;							//删除群组成员成功
-	int MSG_GROUP_DELETE_MEMBER_FAIL				=		311;							//删除群组成员失败
-	int MSG_GROUP_DELETE_MEMBERS_FAIL				=		311;							//删除多群组成员失败
-	int MSG_GROUP_DELETE_SUCCESS					=		312;							//删除群组成功
-	int MSG_GROUP_DELETE_FAIL						=		313;							//删除群组失败
-	int MSG_GROUP_FIND_BY_GOURP_ID_FAIL						=		313;							//删除群组失败
-	int MSG_GROUP_FIND_BY_HX_ID_FAIL						=		313;							//删除群组失败
-	int MSG_GROUP_FIND_BY_USER_NAME_FAIL						=		313;							//删除群组失败
-	int MSG_GROUP_FIND_BY_GROUP_NAME_FAIL						=		313;							//删除群组失败
-	int MSG_PUBLIC_GROUP_FAIL						=		313;							//查找公开群失败
-	int MSG_LOGIN_UNKNOW_USER						=		401;							//账户不存在
-	int MSG_LOGIN_ERROR_PASSWORD					=		402;							//账户密码错误
-	int MSG_LOGIN_SUCCESS							=		403;							//登陆成功
-	int MSG_USER_SAME_NICK							=		404;							//昵称未修改
-	int MSG_USER_UPDATE_NICK_SUCCESS				=		405;							//昵称修改成功
-	int MSG_USER_UPDATE_NICK_FAIL					=		406;							//昵称修改失败
-	int MSG_USER_SAME_PASSWORD						=		407;							//昵称未修改
-	int MSG_USER_UPDATE_PASSWORD_SUCCESS			=		408;							//昵称修改成功
-	int MSG_USER_UPDATE_PASSWORD_FAIL				=		409;							//昵称修改失败
-	int MSG_LOCATION_UPLOAD_SUCCESS					=		501;							//用户上传地理位置成功
-	int MSG_LOCATION_UPLOAD_FAIL					=		502;							//用户上传地理位置失败
-	int MSG_LOCATION_UPDATE_SUCCESS					=		503;							//用户更新地理位置成功
-	int MSG_LOCATION_UPDATE_FAIL					=		504;							//用户更新地理位置失败
-	int MSG_LOCATION_GET_FAIL					=		505;							// 获取附近的人失败
+	int MSG_SUCCESS						            =  		0;							    //默认成功
+	int MSG_REGISTER_USERNAME_EXISTS				=		101;							//账号已经存在
+	int MSG_REGISTER_FAIL							=		102;							//注册失败
+	int MSG_UNREGISTER_FAIL							=		103;							//解除注册失败
+	int MSG_USER_SEARCH_FAIL		    			=		104;							// 查找用户失败
+	int MSG_LOGIN_UNKNOW_USER						=		105;							//账户不存在
+	int MSG_LOGIN_ERROR_PASSWORD					=		106;							//账户密码错误
+	int MSG_LOGIN_SUCCESS							=		107;							//登陆成功
+	int MSG_USER_SAME_NICK							=		108;							//昵称未修改
+	int MSG_USER_UPDATE_NICK_FAIL					=		109;							//昵称修改失败
+	int MSG_USER_SAME_PASSWORD						=		110;							//昵称未修改
+	int MSG_USER_UPDATE_PASSWORD_FAIL				=		111;							//昵称修改失败
+	int MSG_LOCATION_UPLOAD_FAIL					=		112;							//用户上传地理位置失败
+	int MSG_LOCATION_UPDATE_FAIL					=		113;							//用户更新地理位置失败
+	int MSG_REGISTER_UPLOAD_AVATAR_FAIL				=		201;							//上传头像失败
+	int MSG_UPLOAD_AVATAR_FAIL						=		202;							//更新头像失败
+	int MSG_CONTACT_FIRENDED						=		301;							//已经是好友关系
+	int MSG_CONTACT_ADD_FAIL						=		302;							//好友关系添加失败
+	int MSG_CONTACT_DEL_FAIL						=		303;							//好友关系删除失败
+	int MSG_GET_CONTACT_ALL_FAIL					=		304;							// 获取全部好友列表失败
+	int MSG_GET_CONTACT_PAGES_FAIL					=		305;							// 分页获取好友列表失败
+	int MSG_GROUP_HXID_EXISTS						=		401;							//群组环信ID已经存在
+	int MSG_GROUP_CREATE_FAIL						=		402;							//创建群组失败
+	int MSG_GROUP_ADD_MEMBER_FAIL					=		403;							//添加群组成员失败
+	int MSG_GROUP_GET_MEMBERS_FAIL					=		404;							//获取群成员失败
+	int MSG_GROUP_UNKONW							=		405;							//群组不存在
+	int MSG_GROUP_SAME_NAME							=		406;							//有相同群组名称
+	int MSG_GROUP_UPDATE_NAME_FAIL					=		407;							//群组名称修改失败
+	int MSG_GROUP_DELETE_MEMBER_FAIL				=		408;							//删除群组成员失败
+	int MSG_GROUP_DELETE_MEMBERS_FAIL				=		409;							//删除多群组成员失败
+	int MSG_GROUP_DELETE_FAIL						=		410;							//删除群组失败
+	int MSG_GROUP_FIND_BY_GOURP_ID_FAIL				=		411;							//根据群组id查找群组失败
+	int MSG_GROUP_FIND_BY_HX_ID_FAIL				=		412;							//根据环信id查找群组失败
+	int MSG_GROUP_FIND_BY_USER_NAME_FAIL			=		413;							//查找用户名称查找查找群组失败
+	int MSG_GROUP_FIND_BY_GROUP_NAME_FAIL			=		414;							//查找群组名称查找查找群组失败
+	int MSG_PUBLIC_GROUP_FAIL						=		415;							//查找公开群失败
+	int MSG_LOCATION_GET_FAIL						=		501;							// 获取附近的人失败
 	int MSG_UNKNOW									=		999;							//未知错误
 	int MSG_ILLEGAL_REQUEST							=		-1;							//非法请求
 
@@ -141,8 +126,6 @@ public interface I {
 	String AVATAR_TYPE 								= 		"avatarType";
 	/** 用户姓名或hxid */
 	String NAME_OR_HXID                             =       "name_or_hxid";
-	/** 头像名称，也就是用户名 */
-	String AVATAR_NAME 								= 		"avatarName";
 	/** 服务器状态的请求 */
 	String REQUEST_SERVERSTATUS 					= 		"server_status";
 	/** 客户端发送的注册请求 */
@@ -155,16 +138,10 @@ public interface I {
 	String REQUEST_UPDATE_USER_NICK 				= 		"update_nick";
 	/** 客户端修改密码的请求 */
 	String REQUEST_UPDATE_USER_PASSWORD 			= 		"update_password";
-	/** 客户端上传头像的请求 */
-	String REQUEST_UPLOAD_AVATAR_ID  		 		= 		"upload_avatar_id";
 	/** 客户端发送的登陆请求 */
 	String REQUEST_LOGIN 							= 		"login";
 	/** 客户端发送的下载用户头像请求 */
 	String REQUEST_DOWNLOAD_AVATAR	 				= 		"download_avatar";
-	/** 客户端发送的下载群组头像请求 */
-	String REQUEST_DOWNLOAD_GROUP_AVATAR 			= 		"download_group_avatar";
-	/** 客户端发送的下载联系人请求 */
-	String REQUEST_DOWNLOAD_CONTACTS			 	= 		"download_contacts";
 	/** 客户端发送的下载联系人所有集合请求 */
 	String REQUEST_DOWNLOAD_CONTACT_ALL_LIST 		= 		"download_contact_all_list";
 	/** 客户端发送的下载联系人集合请求 */
@@ -175,14 +152,8 @@ public interface I {
 	String REQUEST_ADD_CONTACT 						= 		"add_contact";
 	/** 客户端发送的查找用户请求 */
 	String REQUEST_FIND_USER 						= 		"find_user";
-	/** 客户端发送的根据用户名模糊查找用户请求 */
-	String REQUEST_FIND_USERS 						= 		"find_users";
-	/** 客户端发送的根据用户昵称模糊查找用户请求 */
-	String REQUEST_FIND_USERS_BY_NICK 				= 		"find_users_by_nick";
-	/** 客户端发送的根据用户昵称模糊查找用户请求 */
+	/** 客户端发送的根据用户或昵称模糊查找用户请求 */
 	String REQUEST_FIND_USERS_FOR_SEARCH			= 		"find_users_for_search";
-	/** 客户端发送的下载联系人请求 */
-	String REQUEST_DOWNLOAD_CONTACT 				= 		"download_contacts";
 	/** 客户端发送的上传位置请求 */
 	String REQUEST_UPLOAD_LOCATION 					= 		"upload_location";
 	/** 客户端发送的更新位置请求 */
@@ -193,8 +164,6 @@ public interface I {
 	String REQUEST_CREATE_GROUP			 			= 		"create_group";
 	/** 客户端发送的添加群成员请求 */
 	String REQUEST_ADD_GROUP_MEMBER 				= 		"add_group_member";
-	/** 客户端发送的添加群成员请求 */
-	String REQUEST_ADD_GROUP_MEMBER_BY_USERNAME		= 		"add_group_member_by_username";
 	/** 客户端发送的添加多个群成员请求 */
 	String REQUEST_ADD_GROUP_MEMBERS		 		= 		"add_group_members";
 	/** 客户端发送的更新群名称请求 */
@@ -213,8 +182,6 @@ public interface I {
 	String REQUEST_DELETE_GROUP_MEMBERS 			= 		"delete_group_members";
 	/** 客户端发送的删除群组请求 */
 	String REQUEST_DELETE_GROUP 					= 		"delete_group";
-//	/** 客户端发送的下载群组请求 */
-//	String REQUEST_DOWNLOAD_GROUPS 					= 		"download_groups";
 	/** 客户端发送的下载公开裙请求 */
 	String REQUEST_FIND_PUBLIC_GROUPS 				= 		"download_public_groups";
 	/** 客户端发送的根据群组名称模糊查找群组请求 */
@@ -225,6 +192,4 @@ public interface I {
 	String REQUEST_FIND_GROUP_BY_ID					= 		"find_group_by_group_id";
 	/** 客户端发送的根据群组环信id查找群组请求 */
 	String REQUEST_FIND_GROUP_BY_HXID 				= 		"find_group_by_group_hxid";
-	/** 客户端发送的根据群组环信id查找公开群组请求 */
-	String REQUEST_FIND_PUBLIC_GROUP_BY_HXID 		= 		"find_public_group_by_group_hxid";
 }

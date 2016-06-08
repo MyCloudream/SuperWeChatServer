@@ -37,143 +37,153 @@ public class Server extends HttpServlet {
 		}
 		switch(requestType){
 		default:
+			// 0、处理非法请求
 			doIllegalRequest(response);
 			break;
 		case I.REQUEST_SERVERSTATUS:
+			// 1、获取服务器状态
 			getServerStatus(request, response);
 			break;
 		case I.REQUEST_UNREGISTER:
+			// 3、取消注册
 			unRegister(request,response);
 			break;
 		case I.REQUEST_LOGIN:
+			// 4、用户登录
 			login(response, request);
 			break;
 		case I.REQUEST_DOWNLOAD_AVATAR:
+			// 5、下载用户或群组头像
 			downloadAvatar(request, response);
 			break;
 		case I.REQUEST_UPDATE_USER_NICK:
+			// 7、更新用户昵称
 			updateUserNickByName(request,response);
 			break;
 		case I.REQUEST_UPDATE_USER_PASSWORD:
+			// 8、根据用户名更改用户密码
 			updateUserPassowrdByName(request,response);
 			break;
-		// 下载好友列表，显示全部数据
 		case I.REQUEST_DOWNLOAD_CONTACT_ALL_LIST:
+			// 9、下载好友列表，显示全部数据
 			downloadContactAllList(request, response);
 			break;
-			// 下载好友列表，分页显示的数据
+			// 10、下载好友列表，分页显示的数据
 		case I.REQUEST_DOWNLOAD_CONTACT_PAGE_LIST:
 			downloadContactPageList(request, response);
 			break;
 		case I.REQUEST_ADD_CONTACT:
+			// 11、添加好友
 			addContact(request, response);
 			break;
 		case I.REQUEST_DELETE_CONTACT:
+			// 12、删除好友
 			deleteContact(request, response);
 			break;
 		case I.REQUEST_FIND_USER:
+			// 13、根据用户名查找用户
 			findUserByUserName(request, response);
 			break;
 		case I.REQUEST_FIND_USERS_FOR_SEARCH:
+			//14、根据用户名或昵称，模糊分页查询用户列表
 			findUsersForSearch(request, response);
 			break;
 		case I.REQUEST_UPDATE_GROUP_NAME:
+			// 16、更新群组名称
 			updateGroupName(request,response);
 			break;
 		case I.REQUEST_ADD_GROUP_MEMBER:
+			// 17、添加群组成员
 			addGroupMember(request,response);
 			break;
 		case I.REQUEST_ADD_GROUP_MEMBERS:
+			// 18、添加多个群组成员
 			addGroupMembers(request,response);
 			break;
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS:
+			// 19、根据群组id，下载全部群组成员
 			downloadGroupMembersByGroupId(request,response);
 			break;
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_LIMIT:
+			// 20、根据群组id，分页下载群组成员
 			downloadGroupMembersPagesByGroupId(request,response);
 			break;
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID:
+			// 21、根据环信id，下载全部群组成员
 			downloadGroupMembersByHxId(request,response);
 			break;
 		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID_LIMIT:
+			// 22、根据环信id，分页下载群组成员
 			downloadGroupMembersPagesByHxId(request,response);
 			break;
 		case I.REQUEST_DELETE_GROUP_MEMBER:
+			// 23、删除单个群组成员
 			deleteGroupMember(request,response);
 			break;
 		case I.REQUEST_DELETE_GROUP_MEMBERS:
+			// 24、删除多个群组成员
 			deleteGroupMembers(request,response);
 			break;
 		case I.REQUEST_DELETE_GROUP:
+			// 25、删除群组
 			deleteGroup(request,response);
 			break;
-		case I.REQUEST_FIND_GROUP_BY_ID:
-			findGroupByGroupId(request,response);
-			break;
-		case I.REQUEST_FIND_GROUP_BY_HXID:
-			findGroupByHxId(request,response);
-			break;
 		case I.REQUEST_FIND_GROUP_BY_USER_NAME:
+			// 26、根据用户名，下载指定下载指定用户的群组列表
 			findAllGroupByUserName(request,response);
 			break;
 		case I.REQUEST_FIND_PUBLIC_GROUPS:
+			// 27、分页下载全部的公开群
 			findPublicGroups(request,response);
 			break;
 		case I.REQUEST_FIND_GROUP_BY_GROUP_NAME:
+			// 28、根据群组名称，模糊查询全部群组列表
 			findGroupByGroupName(request,response);
 			break;
+		case I.REQUEST_FIND_GROUP_BY_ID:
+			// 29、根据群组ID查询群组信息
+			findGroupByGroupId(request,response);
+			break;
+		case I.REQUEST_FIND_GROUP_BY_HXID:
+			// 30、根据环信ID查询群组信息
+			findGroupByHxId(request,response);
+			break;
 		case I.REQUEST_UPLOAD_LOCATION:
+			// 31、上传用户地理位置
 			uploadLocation(request, response);
 			break;
 		case I.REQUEST_UPDATE_LOCATION:
+			// 32、更新用户地理位置
 			updateLocation(request, response);
 			break;
 		case I.REQUEST_DOWNLOAD_LOCATION:
+			// 33、分页下载附近的人
 			downloadLocation(request, response);
 			break;
-			/*case I.REQUEST_DOWNLOAD_GROUP_AVATAR:
-			downloadGroupAvatar(request, response);
-			break;
-		case I.REQUEST_DOWNLOAD_CONTACT_ALL_LIST:
-			downloadContactAllList(request, response);
-			break;
-		case I.REQUEST_FIND_USERS:
-			findUsersByUserName(request, response);
-			break;
-		case I.REQUEST_FIND_USERS_BY_NICK:
-			findUsersByNick(request, response);
-			break;
-		case I.REQUEST_ADD_GROUP_MEMBER_BY_USERNAME:
-			addGroupMemberByUserName(request,response);
-			break;
-		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS:
-			downloadGroupMembers(request,response);
-			break;
-		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_LIMIT:
-			downloadGroupMembersByLimit(request,response);
-			break;
-		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID:
-			downloadGroupMembersByHXID(request,response);
-			break;
-		case I.REQUEST_DOWNLOAD_GROUP_MEMBERS_BY_HXID_LIMIT:
-			downloadGroupMembersByHXIDLimit(request,response);
-			break;
-		case I.REQUEST_DELETE_GROUP_MEMBERS:
-			deleteGroupMembers(request,response);
-			break;
-		case I.REQUEST_DOWNLOAD_GROUPS:
-			downloadAllGroups(request,response);
-			break;
-		case I.REQUEST_FIND_GROUP_BY_ID:
-			findGroupById(request,response);
-			break;
-		case I.REQUEST_FIND_PUBLIC_GROUP_BY_HXID:
-			findPublicGroupByHXID(request,response);
-			break;
-		case I.REQUEST_UPDATE_USER_NICK:
-			updateUserNickByName(request,response);
-			break;
-		*/
+		}
+	}
+	
+
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException,IOException{
+		String requestType = request.getParameter(I.KEY_REQUEST);
+		System.out.println("doGet requestType="+requestType);
+		switch(requestType){
+			case I.REQUEST_REGISTER:
+				// 2、注册用户
+				register(request, response);
+				break;
+			case I.REQUEST_UPLOAD_AVATAR:
+				// 6、更新用户头像或群组头像
+				uploadAvatarByNameOrHXID(request,response);
+				break;
+			case I.REQUEST_CREATE_GROUP:
+				// 15、创建群组
+				createGroup(request,response);
+				break;
+			default:
+				doIllegalRequest(response);
+				break;
 		}
 	}
 
@@ -333,7 +343,6 @@ public class Server extends HttpServlet {
 
 	/**
 	 * 添加成员信息
-	 * 此处应该修改为事务操作！！！！！！！
 	 * @param request
 	 * @param response
 	 */
@@ -438,25 +447,6 @@ public class Server extends HttpServlet {
 		JsonUtil.writeJsonToClient(result, response);
 	}
 
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException,IOException{
-		String requestType = request.getParameter(I.KEY_REQUEST);
-		System.out.println("doGet requestType="+requestType);
-		switch(requestType){
-			case I.REQUEST_REGISTER:
-				register(request, response);
-				break;
-			case I.REQUEST_UPLOAD_AVATAR:
-				uploadAvatarByNameOrHXID(request,response);
-				break;
-			// 创建群组
-			case I.REQUEST_CREATE_GROUP:
-				createGroup(request,response);
-				break;
-			default:
-				doIllegalRequest(response);
-		}
-	}
 
 	/**
 	 * 创建群组
@@ -488,7 +478,7 @@ public class Server extends HttpServlet {
 	 * @param response
 	 */
 	private void downloadAvatar(HttpServletRequest request, HttpServletResponse response) {
-		String avatarName = request.getParameter(I.AVATAR_NAME);
+		String avatarName = request.getParameter(I.NAME_OR_HXID);
 		String avatarType = request.getParameter(I.AVATAR_TYPE);
 		biz.downloadAvatar(avatarName,avatarType,response);
 	}
@@ -538,7 +528,7 @@ public class Server extends HttpServlet {
 	 */
 	private void getServerStatus(HttpServletRequest request,
 			HttpServletResponse response){
-		Result result = new Result(true,I.MSG_CONNECTION_SUCCESS);
+		Result result = new Result(true,I.MSG_SUCCESS);
 		JsonUtil.writeJsonToClient(result, response);
 	}
 	

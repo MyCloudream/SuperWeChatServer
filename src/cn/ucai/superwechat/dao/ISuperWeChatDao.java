@@ -6,10 +6,8 @@ import cn.ucai.superwechat.bean.GroupAvatar;
 import cn.ucai.superwechat.bean.LocationUserAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
 import cn.ucai.superwechat.bean.UserAvatar;
-import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.pojo.Group;
 import cn.ucai.superwechat.pojo.Location;
-import cn.ucai.superwechat.pojo.Member;
 import cn.ucai.superwechat.pojo.User;
 
 
@@ -63,13 +61,13 @@ public interface ISuperWeChatDao {
 	 * @param pageSize
 	 * @return
 	 */
-	public UserAvatarContact findContactPagesByUserName(String userName, String pageId, String pageSize);
+	public List<UserAvatar> findContactPagesByUserName(String userName, String pageId, String pageSize);
 	/**
 	 * 查询全部联系人信息
 	 * @param userName
 	 * @return
 	 */
-	public UserAvatarContact findContactAllByUserName(String userName);
+	public List<UserAvatar> findContactAllByUserName(String userName);
 	/**
 	 * 查找cname是否已经是name的好友
 	 * @param name

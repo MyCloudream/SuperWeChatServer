@@ -9,16 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.ucai.superwechat.bean.GroupAvatar;
-import cn.ucai.superwechat.bean.LocationUserAvatar;
-import cn.ucai.superwechat.bean.MemberUserAvatar;
-import cn.ucai.superwechat.bean.UserAvatar;
-import cn.ucai.superwechat.bean.UserAvatarContact;
-import cn.ucai.superwechat.pojo.Contact;
-import cn.ucai.superwechat.pojo.Group;
-import cn.ucai.superwechat.pojo.Location;
-import cn.ucai.superwechat.pojo.Member;
-import cn.ucai.superwechat.pojo.User;
+import cn.ucai.superwechat.bean.*;
+import cn.ucai.superwechat.pojo.*;
 import cn.ucai.superwechat.servlet.I;
 import cn.ucai.superwechat.utils.JdbcUtils;
 import cn.ucai.superwechat.utils.Utils;
@@ -28,33 +20,13 @@ import cn.ucai.superwechat.utils.Utils;
  * 数据访问层
  */
 public class SuperWeChatDao implements ISuperWeChatDao {
-	
-	private final String SQL_QUERY_AVATAR = ","+ I.Avatar.TABLE_NAME;
-	private final String SQL_QUERY_LOCATION = ","+ I.Location.TABLE_NAME;
-	private final String SQL_QUERY_USER = ","+ I.User.TABLE_NAME;
-	private final String SQL_QUERY_GROUP = ","+ I.Group.TABLE_NAME;
-	private final String SQL_COMPARE_USER_NAME_AVATAR = " and " + I.User.USER_NAME + "=" + I.Avatar.USER_NAME + " ";
-//	private final String SQL_COMPARE_USER_ID_AVATAR = " and " + I.User.USER_ID + "=" + I.Avatar.USER_ID + " ";
-//	private final String SQL_COMPARE_USER_NAME_LOCATION = " and " + I.User.USER_NAME + "=" + I.Location.USER_NAME + " ";
-//	private final String SQL_COMPARE_USER_ID_LOCATION = " and " + I.User.USER_ID + "=" + I.Location.USER_ID + " ";
-//	private final String SQL_COMPARE_USER_NAME_CONTACT = " and " + I.User.USER_NAME + "=" + I.Contact.CU_NAME + " ";
-//	private final String SQL_COMPARE_USER_ID_CONTACT = " and " + I.User.USER_ID + "=" + I.Contact.CU_ID + " ";
-	private final String SQL_COMPARE_GROUP_ID_MEMBER = " and " + I.Member.GROUP_ID + "=" + I.Group.GROUP_ID + " ";
-	private final String SQL_COMPARE_AVATAR_USER = " and " + I.Avatar.AVATAR_TYPE + "=0 ";
-	private final String SQL_COMPARE_AVATAR_GROUP = " and " + I.Avatar.AVATAR_TYPE + "=1 ";
-//	private final String SQL_COMPARE_GROUP_ID_AVATAR = " and " + I.Group.GROUP_ID + "=" + I.Avatar.USER_ID + " ";
-//	private final String SQL_COMPARE_GROUP_HXID_AVATAR = " and " + I.Group.HX_ID + "=" + I.Avatar.USER_NAME + " ";
-//	private final String SQL_COMPARE_USER_ID_MEMBER = " and " + I.User.USER_ID + "=" + I.Member.USER_ID + " ";
-	private final String SQL_COMPARE_PUBLIC_GROUP = " and " + I.Group.IS_PUBLIC + "=1 ";
-
 	@Override
 	public User findUserByUserName(String userName) {
-		System.out.println("SuperQQDao.findUserByUserName,userName=" + userName);
 		ResultSet set = null;
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
-		String sql = "select * from " + I.User.TABLE_NAME + SQL_QUERY_AVATAR + " where " + I.User.USER_NAME + "=?"
-				+ SQL_COMPARE_USER_NAME_AVATAR + SQL_COMPARE_AVATAR_USER;
+		String sql = "select * from " + I.User.TABLE_NAME + ","+ I.Avatar.TABLE_NAME + " where " + I.User.USER_NAME + "=?"
+				+ " and " + I.User.USER_NAME + " = " + I.Avatar.USER_NAME + " and " + I.Avatar.AVATAR_TYPE + "=0 ";
 		System.out.println("connection=" + connection + ",sql=" + sql);
 		try {
 			statement = connection.prepareStatement(sql);
@@ -82,12 +54,12 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			// 关闭事务的自动提交
 			connection.setAutoCommit(false);
 			String sql = "insert into " + I.User.TABLE_NAME + "(" + I.User.USER_NAME + "," + I.User.PASSWORD + ","
-					+ I.User.NICK + "," + I.User.UN_READ_MSG_COUNT + ")values(?,?,?,?)";
+					+ I.User.NICK + ")values(?,?,?)";
+			System.out.println("addUser:"+sql);
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, user.getMUserName());
 			statement.setString(2, user.getMUserPassword());
 			statement.setString(3, user.getMUserNick());
-			statement.setInt(4, 0);
 			statement.executeUpdate();
 			
 			sql = "insert into " + I.Avatar.TABLE_NAME + "(" + I.Avatar.USER_NAME + "," + I.Avatar.AVATAR_PATH + ","
@@ -165,15 +137,6 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			if (rs.next()) {
 				UserAvatar userAvatar = new UserAvatar();
 				initUserAvatar(rs,userAvatar);
-				/*userAvatar.setMUserName(rs.getString(I.User.USER_NAME));
-				userAvatar.setMUserPassword(rs.getString(I.User.PASSWORD));
-				userAvatar.setMUserNick(rs.getString(I.User.NICK));
-				userAvatar.setMUserUnreadMsgCount(rs.getInt(I.User.UN_READ_MSG_COUNT));
-				userAvatar.setMAvatarId(rs.getInt(I.Avatar.AVATAR_ID));
-				userAvatar.setMAvatarUserName(rs.getString(I.Avatar.USER_NAME));
-				userAvatar.setMAvatarPath(rs.getString(I.Avatar.AVATAR_PATH));
-				userAvatar.setMAvatarType(rs.getInt(I.Avatar.AVATAR_TYPE));
-				userAvatar.setMAvatarLastUpdateTime(rs.getString(I.Avatar.UPDATE_TIME));*/
 				return userAvatar;
 			}
 		} catch (SQLException e) {
@@ -259,7 +222,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	}
 
 	@Override
-	public UserAvatarContact findContactPagesByUserName(String userName, String pageId, String pageSize) {
+	public List<UserAvatar> findContactPagesByUserName(String userName, String pageId, String pageSize) {
 		ResultSet rs = null;
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
@@ -277,21 +240,13 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement.setInt(2, (niPageId-1)*niPageSize);
 			statement.setInt(3, niPageSize);
 			rs = statement.executeQuery();
-			boolean flag = true;
-			UserAvatarContact uac = new UserAvatarContact();
 			List<UserAvatar> listUserAvatar = new ArrayList<UserAvatar>();
 			while (rs.next()) {
-				if(flag){
-					uac.setMContactId(rs.getInt(I.Contact.CONTACT_ID));
-					uac.setMContactUserName(rs.getString(I.Contact.USER_NAME));
-					flag = false;
-				}
 				UserAvatar ua = new UserAvatar();
 				initUserAvatar(rs,ua);
 				listUserAvatar.add(ua);
 			}
-			uac.setListUserAvatar(listUserAvatar);
-			return uac;
+			return listUserAvatar;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -540,15 +495,6 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			if (rs.next()) {
 				GroupAvatar groupAvatar = new GroupAvatar();
 				initGroupAvatar(rs,groupAvatar);
-				/*userAvatar.setMUserName(rs.getString(I.User.USER_NAME));
-				userAvatar.setMUserPassword(rs.getString(I.User.PASSWORD));
-				userAvatar.setMUserNick(rs.getString(I.User.NICK));
-				userAvatar.setMUserUnreadMsgCount(rs.getInt(I.User.UN_READ_MSG_COUNT));
-				userAvatar.setMAvatarId(rs.getInt(I.Avatar.AVATAR_ID));
-				userAvatar.setMAvatarUserName(rs.getString(I.Avatar.USER_NAME));
-				userAvatar.setMAvatarPath(rs.getString(I.Avatar.AVATAR_PATH));
-				userAvatar.setMAvatarType(rs.getInt(I.Avatar.AVATAR_TYPE));
-				userAvatar.setMAvatarLastUpdateTime(rs.getString(I.Avatar.UPDATE_TIME));*/
 				return groupAvatar;
 			}
 		} catch (SQLException e) {
@@ -574,15 +520,6 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			if (rs.next()) {
 				GroupAvatar groupAvatar = new GroupAvatar();
 				initGroupAvatar(rs,groupAvatar);
-				/*userAvatar.setMUserName(rs.getString(I.User.USER_NAME));
-				userAvatar.setMUserPassword(rs.getString(I.User.PASSWORD));
-				userAvatar.setMUserNick(rs.getString(I.User.NICK));
-				userAvatar.setMUserUnreadMsgCount(rs.getInt(I.User.UN_READ_MSG_COUNT));
-				userAvatar.setMAvatarId(rs.getInt(I.Avatar.AVATAR_ID));
-				userAvatar.setMAvatarUserName(rs.getString(I.Avatar.USER_NAME));
-				userAvatar.setMAvatarPath(rs.getString(I.Avatar.AVATAR_PATH));
-				userAvatar.setMAvatarType(rs.getInt(I.Avatar.AVATAR_TYPE));
-				userAvatar.setMAvatarLastUpdateTime(rs.getString(I.Avatar.UPDATE_TIME));*/
 				return groupAvatar;
 			}
 		} catch (SQLException e) {
@@ -669,8 +606,11 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
 			System.out.println("sql"+sql);
 			statement = connection.prepareStatement(sql);
-			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()+1);
-			statement.setString(2, System.currentTimeMillis()+"");
+			// 1、实体类同步更新
+			groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+1);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount());
+			groupAvatar.setMAvatarLastUpdateTime(System.currentTimeMillis()+"");
+			statement.setString(2, groupAvatar.getMAvatarLastUpdateTime());
 			statement.setInt(3, groupAvatar.getMGroupId());
 			int count2 = statement.executeUpdate();
 			connection.commit();
@@ -688,29 +628,6 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		return false;
 	}
 	
-/*	@Override
-	public boolean updateGroupAffiliationsCount(GroupAvatar groupAvatar) {
-		PreparedStatement statement = null;
-		Connection connection = JdbcUtils.getConnection();
-		String sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
-				+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
-		System.out.println("sql"+sql);
-		System.out.println(groupAvatar.toString());
-		try {
-			statement = connection.prepareStatement(sql);
-			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount());
-			statement.setString(2, groupAvatar.getMGroupLastModifiedTime());
-			statement.setInt(3, groupAvatar.getMGroupId());
-			int count = statement.executeUpdate();
-			return count > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			JdbcUtils.closeAll(null, statement, connection);
-		}
-		return false;
-	}
-*/
 	@Override
 	public boolean addGroupMembersAndUpdateGroupAffiliationsCount(String userNameArr,GroupAvatar groupAvatar) {
 		PreparedStatement statement = null;
@@ -744,8 +661,11 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
 			System.out.println("sql"+sql);
 			statement = connection.prepareStatement(sql);
-			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()+memberArr.length);
-			statement.setString(2, System.currentTimeMillis()+"");
+			
+			groupAvatar.setMGroupAffiliationsCount(groupAvatar.getMGroupAffiliationsCount()+memberArr.length);
+			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount());
+			groupAvatar.setMAvatarLastUpdateTime(System.currentTimeMillis()+"");
+			statement.setString(2, groupAvatar.getMAvatarLastUpdateTime());
 			statement.setInt(3, groupAvatar.getMGroupId());
 			int count2 = statement.executeUpdate();
 			connection.commit();
@@ -927,12 +847,13 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			
 			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
 					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
-			System.out.println("sql"+sql);
+			System.out.println("sql:"+sql);
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, groupAvatar.getMGroupAffiliationsCount()-1);
 			statement.setString(2, System.currentTimeMillis()+"");
 			statement.setInt(3, groupAvatar.getMGroupId());
 			int count2 = statement.executeUpdate();
+			connection.commit();
 			return count1 > 0 && count2 > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -958,9 +879,13 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 					+ I.Member.GROUP_ID + " =?";
 			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
-			statement.setString(1, userNames);
-			statement.setInt(2, groupAvatar.getMGroupId());
-			int count1 = statement.executeUpdate();
+			String[] userNameArr = userNames.split(",");
+			for(String userName:userNameArr){
+				statement.setString(1, userName);
+				statement.setInt(2, groupAvatar.getMGroupId());
+				statement.addBatch();
+			}
+			int[] count1 = statement.executeBatch();
 			
 			sql = "update " + I.Group.TABLE_NAME + " set " + I.Group.AFFILIATIONS_COUNT + "=?,"
 					+ I.Group.MODIFIED_TIME + "=?" + " where " + I.Group.GROUP_ID + "=?";
@@ -970,7 +895,8 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement.setString(2, System.currentTimeMillis()+"");
 			statement.setInt(3, groupAvatar.getMGroupId());
 			int count2 = statement.executeUpdate();
-			return count1 > 0 && count2 > 0;
+			connection.commit();
+			return count1.length > 0 && count2 > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -985,6 +911,11 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 		return false;
 	}
 
+	/**
+	 * 注意三者的删除顺序问题
+	 * @param groupId
+	 * @return
+	 */
 	@Override
 	public boolean deleteGroupAndMembers(String groupId) {
 		Connection connection = JdbcUtils.getConnection();
@@ -997,15 +928,16 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, Integer.parseInt(groupId));
 			statement.executeUpdate();
-			// 删除群组
-			sql = "delete from " + I.Group.TABLE_NAME + " where " + I.Group.GROUP_ID + "=?";
+			// 删除群组头像
+			sql = "delete from " + I.Avatar.TABLE_NAME + " where " + I.Avatar.USER_NAME 
+					+ "=(select "+I.Group.HX_ID+" from "+I.Group.TABLE_NAME+" where "+I.Group.GROUP_ID+"=?)";
 			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, Integer.parseInt(groupId));
 			statement.executeUpdate();
-			// 删除群组头像
-			sql = "delete from " + I.Avatar.TABLE_NAME + " where " + I.Avatar.USER_NAME 
-					+ "=(select "+I.Group.HX_ID+" from "+I.Group.TABLE_NAME+" where "+I.Group.GROUP_ID+"=?)";
+			
+			// 删除群组
+			sql = "delete from " + I.Group.TABLE_NAME + " where " + I.Group.GROUP_ID + "=?";
 			System.out.println("connection=" + connection + ",sql=" + sql);
 			statement = connection.prepareStatement(sql);
 			statement.setInt(1, Integer.parseInt(groupId));
@@ -1178,7 +1110,7 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 	}
 
 	@Override
-	public UserAvatarContact findContactAllByUserName(String userName) {
+	public List<UserAvatar> findContactAllByUserName(String userName) {
 		ResultSet rs = null;
 		PreparedStatement statement = null;
 		Connection connection = JdbcUtils.getConnection();
@@ -1191,21 +1123,13 @@ public class SuperWeChatDao implements ISuperWeChatDao {
 			statement = connection.prepareStatement(sql);
 			statement.setString(1, userName);
 			rs = statement.executeQuery();
-			boolean flag = true;
-			UserAvatarContact uac = new UserAvatarContact();
 			List<UserAvatar> listUserAvatar = new ArrayList<UserAvatar>();
 			while (rs.next()) {
-				if(flag){
-					uac.setMContactId(rs.getInt(I.Contact.CONTACT_ID));
-					uac.setMContactUserName(rs.getString(I.Contact.USER_NAME));
-					flag = false;
-				}
 				UserAvatar ua = new UserAvatar();
 				initUserAvatar(rs,ua);
 				listUserAvatar.add(ua);
 			}
-			uac.setListUserAvatar(listUserAvatar);
-			return uac;
+			return listUserAvatar;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

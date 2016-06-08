@@ -15,15 +15,16 @@ import javax.servlet.http.HttpServletResponse;
 import cn.ucai.superwechat.bean.GroupAvatar;
 import cn.ucai.superwechat.bean.LocationUserAvatar;
 import cn.ucai.superwechat.bean.MemberUserAvatar;
+import cn.ucai.superwechat.bean.Pager;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.bean.UserAvatar;
-import cn.ucai.superwechat.bean.UserAvatarContact;
 import cn.ucai.superwechat.dao.ISuperWeChatDao;
 import cn.ucai.superwechat.dao.SuperWeChatDao;
 import cn.ucai.superwechat.pojo.Group;
 import cn.ucai.superwechat.pojo.Location;
 import cn.ucai.superwechat.pojo.User;
 import cn.ucai.superwechat.servlet.I;
+import cn.ucai.superwechat.utils.PropertiesUtil;
 
 public class SuperWeChatBiz implements ISuperWeChatBiz {
 	private ISuperWeChatDao dao;
@@ -38,11 +39,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(u==null){
 			if(uploadAvatar(user.getMUserName(),I.AVATAR_TYPE_USER_PATH,request)){// 头像上传成功
 				if(dao.addUser(user)){// 注册成功
-					result = new Result(true,I.MSG_REGISTER_SUCCESS);
+					result = new Result(true,I.MSG_SUCCESS);
 				}else{// 注册失败
 					result = new Result(false,I.MSG_REGISTER_FAIL);
 					// 删除本地图片
-					deleteAvatar(I.AVATAR_PATH+I.AVATAR_TYPE_USER_PATH,user.getMUserName());
+					deleteAvatar(PropertiesUtil.getValue("avatar_path","path.properties")+I.AVATAR_TYPE_USER_PATH,user.getMUserName());
 				}
 			}else{
 				result = new Result(false,I.MSG_UPLOAD_AVATAR_FAIL);
@@ -79,11 +80,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		String path;
 		switch (type) {
 		case I.AVATAR_TYPE_USER_PATH:
-			path = I.AVATAR_PATH + I.AVATAR_TYPE_USER_PATH + I.BACKSLASH;
+			path = PropertiesUtil.getValue("avatar_path","path.properties") + I.AVATAR_TYPE_USER_PATH + I.BACKSLASH;
 			break;
 		case I.AVATAR_TYPE_GROUP_PATH:
 		default:
-			path = I.AVATAR_PATH + I.AVATAR_TYPE_GROUP_PATH + I.BACKSLASH;
+			path = PropertiesUtil.getValue("avatar_path","path.properties") + I.AVATAR_TYPE_GROUP_PATH + I.BACKSLASH;
 			break;
 		}
 		String fileName = name + I.AVATAR_SUFFIX_JPG;
@@ -117,13 +118,13 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		boolean isDelete = dao.deleteUser(userName);
 		if(isDelete){
-			String path = I.AVATAR_PATH + I.AVATAR_TYPE_USER_PATH 
+			String path = PropertiesUtil.getValue("avatar_path","path.properties") + I.AVATAR_TYPE_USER_PATH 
 					+ I.BACKSLASH + userName + I.AVATAR_SUFFIX_JPG;
 			File file = new File(path);
 			if (file.exists()){
 				file.delete();
 				result.setRetMsg(true);
-				result.setRetCode(I.MSG_UNREGISTER_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 			}
 		}else{
 			result.setRetMsg(false);
@@ -167,7 +168,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(u!=null){
 			if(u.getMUserPassword().equals(user.getMUserPassword())){
 				result.setRetMsg(true);
-				result.setRetCode(I.MSG_LOGIN_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				UserAvatar ua = dao.findUserAvatarByUserName(user.getMUserName());
 				result.setRetData(ua);
 			}else{
@@ -185,12 +186,13 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	public void downloadAvatar(String avatarName,String avatarType,HttpServletResponse response) {
 		File file = null;
 		if(avatarType.equals(I.AVATAR_TYPE_USER_PATH)){
-			file = new File(I.AVATAR_PATH + I.AVATAR_TYPE_USER_PATH 
+			file = new File(PropertiesUtil.getValue("avatar_path","path.properties") + I.AVATAR_TYPE_USER_PATH 
 					+ I.BACKSLASH + avatarName + I.AVATAR_SUFFIX_JPG);
 		}else if(avatarType.equals(I.AVATAR_TYPE_GROUP_PATH)){
-			file = new File(I.AVATAR_PATH + I.AVATAR_TYPE_GROUP_PATH 
+			file = new File(PropertiesUtil.getValue("avatar_path","path.properties") + I.AVATAR_TYPE_GROUP_PATH 
 					+ I.BACKSLASH + avatarName + I.AVATAR_SUFFIX_JPG);
 		}
+		System.out.println("---"+file);
 		if (!file.exists()) {
 			System.out.println("头像不存在");
 			return;
@@ -222,7 +224,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		if(uploadAvatar(nameOrHxid,avatarType,request)){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_UPLOAD_AVATAR_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_UPLOAD_AVATAR_FAIL);
@@ -242,7 +244,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 				result.setRetMsg(true);
 				ua.setMUserNick(userNick);
 				result.setRetData(ua);
-				result.setRetCode(I.MSG_USER_UPDATE_NICK_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 			}else{
 				result.setRetMsg(false);
 				result.setRetCode(I.MSG_USER_UPDATE_NICK_FAIL);
@@ -263,7 +265,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 				result.setRetMsg(true);
 //				ua.setMUserPassword(userPassword);
 				result.setRetData(ua);
-				result.setRetCode(I.MSG_USER_UPDATE_PASSWORD_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 			}else{
 				result.setRetMsg(false);
 				result.setRetCode(I.MSG_USER_UPDATE_PASSWORD_FAIL);
@@ -275,14 +277,15 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	@Override
 	public Result findContactPagesByUserName(String userName, String pageId, String pageSize) {
 		Result result = new Result();
-		UserAvatarContact userAvatarContact = dao.findContactPagesByUserName(userName, pageId, pageSize);
-		if(userAvatarContact!=null){
-			result.setRetData(userAvatarContact);
+		List<UserAvatar> listUserAvatar = dao.findContactPagesByUserName(userName, pageId, pageSize);
+		if(listUserAvatar!=null){
+			Pager pager = getPager(pageId, listUserAvatar);
+			result.setRetData(pager);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_GET_CONTACT_PAGES_FAIL);
 		}
 		return result;
 	}
@@ -304,7 +307,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			boolean addContact = dao.addContact(name,cname);
 			if(addContact){
 				result.setRetMsg(true);
-				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				UserAvatar ua = dao.findUserAvatarByUserName(cname);
 				result.setRetData(ua);
 			}else{
@@ -326,7 +329,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		boolean delContact = dao.delContact(name,cname);
 		if(delContact){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_CONTACT_DEL_FAIL);
@@ -348,7 +351,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			result.setRetCode(I.MSG_LOGIN_UNKNOW_USER);
 		}else{
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 			result.setRetData(ua);
 		}
 		return result;
@@ -366,8 +369,9 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			result.setRetCode(I.MSG_LOGIN_UNKNOW_USER);
 		}else{
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-			result.setRetData(uaList);
+			result.setRetCode(I.MSG_SUCCESS);
+			Pager pager = getPager(pageId, uaList);
+			result.setRetData(pager);
 		}
 		return result;
 	}
@@ -382,11 +386,11 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(groupFind==null){
 			if(uploadAvatar(group.getMGroupHxid(),I.AVATAR_TYPE_GROUP_PATH,request)){// 头像上传成功
 				if(dao.addGroupAndGroupOwnerMember(group)){// 添加群组成功
-					result = new Result(true,I.MSG_DEFAULT_SUCCESS);
+					result = new Result(true,I.MSG_SUCCESS);
 				}else{// 添加群组失败
 					result = new Result(false,I.MSG_GROUP_CREATE_FAIL);
 					// 删除本地图片
-					deleteAvatar(I.AVATAR_PATH+I.AVATAR_TYPE_GROUP_PATH,group.getMGroupHxid());
+					deleteAvatar(PropertiesUtil.getValue("avatar_path","path.properties")+I.AVATAR_TYPE_GROUP_PATH,group.getMGroupHxid());
 				}
 			}else{
 				result = new Result(false,I.MSG_UPLOAD_AVATAR_FAIL);
@@ -409,7 +413,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 				result.setRetMsg(true);
 				ga.setMGroupName(groupNewName);
 				result.setRetData(ga);
-				result.setRetCode(I.MSG_USER_UPDATE_NICK_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 			}else{
 				result.setRetMsg(false);
 				result.setRetCode(I.MSG_USER_UPDATE_NICK_FAIL);
@@ -419,7 +423,6 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	}
 
 	/**
-	 * 此处应该修改为事务操作！！！！！！！
 	 * @param userName
 	 * @param hxId
 	 * @return
@@ -432,7 +435,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			if(dao.addGroupMemberAndUpdateGroupAffiliationsCount(userName,groupAvatar)){// 添加成员成功
 				result.setRetMsg(true);
 				result.setRetData(groupAvatar);
-				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				return result;
 			}
 		}
@@ -449,7 +452,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			if(dao.addGroupMembersAndUpdateGroupAffiliationsCount(userNameArr,groupAvatar)){// 添加成员成功
 				result.setRetMsg(true);
 				result.setRetData(groupAvatar);
-				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				return result;
 			}
 		}
@@ -465,7 +468,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(listMemberUserAvatar!=null){
 			result.setRetData(listMemberUserAvatar);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
@@ -478,14 +481,30 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersPagesByGroupId(groupId, pageId, pageSize);
 		if(listMemberUserAvatar!=null){
-			result.setRetData(listMemberUserAvatar);
+			Pager pager = getPager(pageId, listMemberUserAvatar);
+			result.setRetData(pager);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
 		}
 		return result;
+	}
+	
+	/**
+	 * 将分页查询得到的内容封装为Pager类
+	 * @param pageId
+	 * @param list
+	 * @param maxRecord
+	 * @return
+	 */
+	public Pager getPager(String pageId,List<?> list){
+		Pager pager = new Pager();
+		pager.setCurrentPage(Integer.parseInt(pageId));
+		pager.setMaxRecord(list.size());
+		pager.setPageData(list);
+		return pager;
 	}
 
 	@Override
@@ -495,7 +514,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(listMemberUserAvatar!=null){
 			result.setRetData(listMemberUserAvatar);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
@@ -508,9 +527,10 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		List<MemberUserAvatar> listMemberUserAvatar = dao.downloadGroupMembersPagesByHxId(hxId, pageId, pageSize);
 		if(listMemberUserAvatar!=null){
-			result.setRetData(listMemberUserAvatar);
+			Pager pager = getPager(pageId, listMemberUserAvatar);
+			result.setRetData(pager);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_GET_MEMBERS_FAIL);
@@ -526,7 +546,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			if(dao.delGroupMemberAndUpdateGroupAffiliationsCount(userName,groupAvatar)){// 删除群成员
 				result.setRetMsg(true);
 				result.setRetData(groupAvatar);
-				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				return result;
 			}
 		}
@@ -542,7 +562,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		if(groupAvatar!=null){
 			if(dao.delGroupMembersAndUpdateGroupAffiliationsCount(userNames, groupAvatar)){
 				result.setRetMsg(true);
-				result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+				result.setRetCode(I.MSG_SUCCESS);
 				return result;
 			}
 		}
@@ -556,7 +576,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		if(dao.deleteGroupAndMembers(groupId)){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_GROUP_DELETE_FAIL);
@@ -570,7 +590,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		GroupAvatar ga = dao.findGroupAvatarByGroupId(groupId);
 		if(ga!=null){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 			result.setRetData(ga);
 		}else{
 			result.setRetMsg(false);
@@ -585,7 +605,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		GroupAvatar ga = dao.findGroupAvatarByHxId(hxId);
 		if(ga!=null){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 			result.setRetData(ga);
 		}else{
 			result.setRetMsg(false);
@@ -603,7 +623,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		List<GroupAvatar> listGroupAdater = dao.findAllGroupByUserName(userName);
 		if(listGroupAdater!=null){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 			result.setRetData(listGroupAdater);
 		}else{
 			result.setRetCode(I.MSG_GROUP_FIND_BY_USER_NAME_FAIL);
@@ -621,8 +641,9 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		List<GroupAvatar> listGroupAdater = dao.findPublicGroups(userName,pageId,pageSize);
 		if(listGroupAdater!=null){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
-			result.setRetData(listGroupAdater);
+			result.setRetCode(I.MSG_SUCCESS);
+			Pager pager = getPager(pageId+"", listGroupAdater);
+			result.setRetData(pager);
 		}else{
 			result.setRetCode(I.MSG_PUBLIC_GROUP_FAIL);
 			result.setRetMsg(false);
@@ -639,7 +660,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		List<GroupAvatar> listGroupAdater = dao.findGroupByGroupName(groupName);
 		if(listGroupAdater!=null){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 			result.setRetData(listGroupAdater);
 		}else{
 			result.setRetCode(I.MSG_GROUP_FIND_BY_GROUP_NAME_FAIL);
@@ -653,7 +674,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		if(dao.uploadUserLocation(location)){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_LOCATION_UPLOAD_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_LOCATION_UPLOAD_FAIL);
@@ -666,7 +687,7 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 		Result result = new Result();
 		if(dao.updateUserLocation(location)){
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_LOCATION_UPDATE_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
 			result.setRetCode(I.MSG_LOCATION_UPDATE_FAIL);
@@ -677,14 +698,14 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 	@Override
 	public Result findContactAllByUserName(String userName) {
 		Result result = new Result();
-		UserAvatarContact userAvatarContact = dao.findContactAllByUserName(userName);
-		if(userAvatarContact!=null){
-			result.setRetData(userAvatarContact);
+		List<UserAvatar> listUserAvatar = dao.findContactAllByUserName(userName);
+		if(listUserAvatar!=null){
+			result.setRetData(listUserAvatar);
 			result.setRetMsg(true);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_SUCCESS);
 		}else{
 			result.setRetMsg(false);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			result.setRetCode(I.MSG_GET_CONTACT_ALL_FAIL);
 		}
 		return result;
 	}
@@ -699,8 +720,9 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			
 		}else{
 			result.setRetMsg(true);
-			result.setRetData(listLocationUserAvatar);
-			result.setRetCode(I.MSG_DEFAULT_SUCCESS);
+			Pager pager = getPager(pageId, listLocationUserAvatar);
+			result.setRetData(pager);
+			result.setRetCode(I.MSG_SUCCESS);
 		}
 		return result;
 		
