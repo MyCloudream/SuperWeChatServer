@@ -1,6 +1,9 @@
 package cn.ucai.superwechat.bean;
 
-public class LocationUserAvatar extends UserAvatar {
+import java.io.Serializable;
+
+public class LocationUserAvatar extends UserAvatar implements Serializable{
+	private static final long serialVersionUID = 1L;
 	private Integer mlocationId;
 //	private String mlocationUserName;
 	private Double mlocationLatitude;

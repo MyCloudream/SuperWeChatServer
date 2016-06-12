@@ -15,7 +15,6 @@ import cn.ucai.superwechat.servlet.I;
 import cn.ucai.superwechat.utils.JdbcUtils;
 import cn.ucai.superwechat.utils.Utils;
 
-
 /**
  * 数据访问层
  */

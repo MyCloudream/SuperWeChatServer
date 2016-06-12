@@ -387,6 +387,8 @@ public class SuperWeChatBiz implements ISuperWeChatBiz {
 			if(uploadAvatar(group.getMGroupHxid(),I.AVATAR_TYPE_GROUP_PATH,request)){// 头像上传成功
 				if(dao.addGroupAndGroupOwnerMember(group)){// 添加群组成功
 					result = new Result(true,I.MSG_SUCCESS);
+					GroupAvatar ga = dao.findGroupAvatarByHxId(group.getMGroupHxid());
+					result.setRetData(ga);
 				}else{// 添加群组失败
 					result = new Result(false,I.MSG_GROUP_CREATE_FAIL);
 					// 删除本地图片

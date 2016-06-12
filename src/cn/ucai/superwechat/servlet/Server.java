@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
+
+import cn.ucai.superwechat.bean.Pager;
 import cn.ucai.superwechat.bean.Result;
 import cn.ucai.superwechat.biz.ISuperWeChatBiz;
 import cn.ucai.superwechat.biz.SuperWeChatBiz;
@@ -252,6 +255,10 @@ public class Server extends HttpServlet {
 		int pageSize = Integer.parseInt(request.getParameter(I.PAGE_SIZE));
 		Result result = biz.findPublicGroups(userName, pageId, pageSize);
 		JsonUtil.writeJsonToClient(result, response);
+		
+		System.out.println(new Gson().toJson(result));
+		System.out.println(new Gson().toJson(result));
+		System.out.println(new Gson().toJson(result.getRetData()));
 	}
 
 	private void findAllGroupByUserName(HttpServletRequest request, HttpServletResponse response) {
